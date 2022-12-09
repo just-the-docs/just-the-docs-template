@@ -23,6 +23,6 @@ Anki is an open-source flashcard app freely available on desktop and mobile (sea
 
 #### Current offerings:
 
-- [asa55 Azure Virtual Machines Docs](https://github.com/asa55/azure-virtual-machines-docs-as-flashcards/releases) derived from these [official docs](https://learn.microsoft.com/azure/virtual-machines/)
-- [asa55 Azure Virtual Network Docs](https://github.com/asa55/azure-virtual-network-docs-as-flashcards/releases) derived from these [official docs](https://learn.microsoft.com/azure/virtual-network/)
-- [asa55 Azure Blob Storage Docs](https://github.com/asa55/azure-blob-storage-docs-as-flashcards/releases) derived from these [official docs](https://learn.microsoft.com/azure/storage/blobs/)
+- [asa55 Azure Virtual Machines Docs](https://github.com/asa55/azure-virtual-machines-docs-as-flashcards/releases) flashcard deck derived from these [official docs](https://learn.microsoft.com/azure/virtual-machines/)
+- [asa55 Azure Virtual Network Docs](https://github.com/asa55/azure-virtual-network-docs-as-flashcards/releases) flashcard deck derived from these [official docs](https://learn.microsoft.com/azure/virtual-network/)
+- [asa55 Azure Blob Storage Docs](https://github.com/asa55/azure-blob-storage-docs-as-flashcards/releases) flashcard deck derived from these [official docs](https://learn.microsoft.com/azure/storage/blobs/)
