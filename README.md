@@ -1,3 +1,8 @@
+---
+title: Home
+layout: home
+---
+
 # docs-as-flashcards
 
 ### Docs are boring, but very important.
