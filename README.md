@@ -148,15 +148,6 @@ The Github Actions workflow that builds and deploys your site to Github Pages is
           - "docs/**"
     ```
 
-
-
-
-
-### Configure 
-
-create a docs folder in your project repo, and copy all the template files, excluding the `.githubinto that folder. I
-
-
 ## Licensing and Attribution
 
 This repository is licensed under the [MIT License]. You are generally free to reuse or extend upon this code as you see fit; just include the original copy of the license (which is preserved when you "make a template"). While it's not necessary, we'd love to hear from you if you do use this template, and how we can improve it for future use!
