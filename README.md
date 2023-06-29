@@ -98,13 +98,13 @@ You might want to maintain your docs in an existing project repo. Instead of cre
 
 ### Copy the template files
 
-1.  Create a `.github/workflows` directory at your project root if your repo doesn't already have one. Copy the `pages.yml` file into this directory. Github Actions searches this directory for workflow files.
+1.  Create a `.github/workflows` directory at your project root if your repo doesn't already have one. Copy the `pages.yml` file into this directory. GitHub Actions searches this directory for workflow files.
 
 2.  Create a `docs` directory at your project root and copy all remaining template files into this directory.
 
-### Modify the Github Actions worklow
+### Modify the GitHub Actions workflow
 
-The Github Actions workflow that builds and deploys your site to Github Pages is defined by the `pages.yml` file. You'll need to edit this file to that so that your build and deploy steps look to your `docs` directory, rather than the project root.
+The GitHub Actions workflow that builds and deploys your site to Github Pages is defined by the `pages.yml` file. You'll need to edit this file to that so that your build and deploy steps look to your `docs` directory, rather than the project root.
 
 1.  Set the default `working-directory` param for the build job.
 
