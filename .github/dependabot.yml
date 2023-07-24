@@ -2,7 +2,7 @@ version: 2
 updates:
   - package-ecosystem: bundler
     directory: /
-    schedule: daily
+    schedule:
+      interval: daily
     allow:
-      dependency-type: direct
-   
+      - dependency-type: direct
