@@ -21,7 +21,7 @@ WaterWall is a simple core for tunneling and even direct user-server connections
 - [Reality Direct Tunnel](Reality-Direct-Tunnel)
 - [Reality Reverse Tunnel](Reality-Reverse-Tunnel)
 - [Bgp4 Tunnel or Direct](Bgp4-Tunnel-or-Direct)
-- [Direct Trojan Protocol with Anti tls in tls](Trojan)
+- [Direct Trojan Protocol with Anti tls in tls](Direct-Trojan)
 - [HalfDuplex Tunnel or Direct](HalfDuplex-Tunnel-or-Direct)
 - [Load balancing](Load-Balancing)
 - [CDN Tunnel Direct or Reverse](CDN-Tunnel)
