@@ -1,6 +1,7 @@
 ---
-title: 2 - core.json description
+title: core.json description
 layout: default
+nav_order: 2
 ---
 
 

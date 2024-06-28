@@ -1,6 +1,7 @@
 ---
-title: 3 - config.json description
+title: config.json description
 layout: default
+nav_order: 3
 ---
 
 

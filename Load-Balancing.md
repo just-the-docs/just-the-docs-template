@@ -1,6 +1,7 @@
 ---
-title: 14 - LoadBalancing 
+title: LoadBalancing 
 layout: default
+nav_order: 14
 ---
 
 <div dir="rtl">

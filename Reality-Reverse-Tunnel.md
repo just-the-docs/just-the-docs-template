@@ -1,6 +1,7 @@
 ---
-title: 10 - Reality Tunnel Reverse
+title: Reality Tunnel Reverse
 layout: default
+nav_order: 10
 ---
 
 <div dir="rtl">

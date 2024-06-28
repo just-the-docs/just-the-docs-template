@@ -1,6 +1,7 @@
 ---
-title: 12 - Trojan protocol
+title: Trojan protocol
 layout: default
+nav_order: 12
 ---
 
 <div dir="rtl">

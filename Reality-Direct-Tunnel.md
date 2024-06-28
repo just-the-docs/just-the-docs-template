@@ -1,6 +1,7 @@
 ---
-title: 9 - Reality Tunnel Direct
+title: Reality Tunnel Direct
 layout: default
+nav_order: 9
 ---
 
 <div dir="rtl">
