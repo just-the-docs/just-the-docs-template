@@ -4,7 +4,6 @@ layout: default
 nav_order: 2
 ---
 
-<div dir="rtl">
 
 
 این صفحه اول و شروع آموزش استفاده از waterwall هست
@@ -58,7 +57,6 @@ nav_order: 2
 
 اجرای عادی برنامه هم اینطوریه 
 
-</div>
 
 ```sh
 ./Waterwall
