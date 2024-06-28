@@ -1,8 +1,12 @@
----
+
+* * *
+
 title: Home
 layout: home
 nav_order: 1
----
+
+* * *
+
 
 # WaterWall Documentation
 
@@ -27,5 +31,7 @@ WaterWall is a simple core for tunneling and even direct user-server connections
 - [Load balancing](Load-Balancing)
 - [CDN Tunnel Direct or Reverse](CDN-Tunnel)
 
-----
+
+* * *
+-
 

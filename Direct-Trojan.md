@@ -1,8 +1,12 @@
----
+
+* * *
+
 title: Trojan protocol
 layout: default
 nav_order: 12
----
+
+* * *
+
 
 <div dir="rtl">
 
@@ -23,7 +27,9 @@ nav_order: 12
 فتغییرات در اپدیت 1.20 برای تست قرار داده شد ؛‌ فعلا 4 روزه که مشکلی پیش نیومده
 
 
----
+
+* * *
+
 
 </div>
 
