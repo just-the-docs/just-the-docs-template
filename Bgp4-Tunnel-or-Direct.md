@@ -1,12 +1,8 @@
-
-* * *
-
+---
 title: Bgp4 Tunnel or Direct
 layout: default
 nav_order: 11
-
-* * *
-
+---
 
 <div dir="rtl">
 

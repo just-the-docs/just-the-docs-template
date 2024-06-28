@@ -1,12 +1,8 @@
-
-* * *
-
+---
 title: Reality Tunnel Direct
 layout: default
 nav_order: 9
-
-* * *
-
+---
 
 <div dir="rtl">
 
@@ -49,7 +45,6 @@ nav_order: 9
 - رمز passwd
 - sni: i.stack.imgur.com
 - multi port (443 - 65535)
-
 
 * * *
 
@@ -107,7 +102,6 @@ nav_order: 9
 ```
 
 <div dir="rtl">
-
 
 * * *
 

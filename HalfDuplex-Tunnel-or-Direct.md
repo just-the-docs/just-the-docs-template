@@ -1,12 +1,8 @@
-
-* * *
-
+---
 title: HalfDuplex
 layout: default
 nav_order: 13
-
-* * *
-
+---
 
 <div dir="rtl">
 
@@ -137,7 +133,6 @@ nav_order: 13
 }
 ```
 <div dir="rtl">
-
 
 * * *
 

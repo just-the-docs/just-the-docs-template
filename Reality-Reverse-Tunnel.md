@@ -1,12 +1,8 @@
-
-* * *
-
+---
 title: Reality Tunnel Reverse
 layout: default
 nav_order: 10
-
-* * *
-
+---
 
 <div dir="rtl">
 
@@ -24,9 +20,7 @@ nav_order: 10
 - sni: matrix.snapp.ir
 - multi port (443 - 65535)
 
-
 * * *
-
 # سرور ایران
 
 </div>
@@ -111,9 +105,7 @@ nav_order: 10
 
 <div dir="rtl">
 
-
 * * *
-
 # سرور خارج
 
 
@@ -189,9 +181,7 @@ nav_order: 10
 
 ```
 
-
 * * *
-
 
 <div dir="rtl">
 
@@ -200,9 +190,7 @@ nav_order: 10
 دوستان روی ماکس شاید پینگ جالب نشه چون سیستم فیلترینگ روش اختلال میندازه ؛ اگه این رو حس کردید پس باید با  halfduplex ترکیب کنید که داکیومنتش توی ویکی هست 
 
 
-
 * * *
-
 # سرور ایران
 
 </div>
@@ -300,9 +288,7 @@ nav_order: 10
 
 <div dir="rtl">
 
-
 * * *
-
 
 # سرور خارج
 

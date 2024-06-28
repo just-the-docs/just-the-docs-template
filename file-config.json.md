@@ -1,12 +1,8 @@
-
-* * *
-
+---
 title: config.json description
 layout: default
 nav_order: 3
-
-* * *
-
+---
 
 
 <div dir="rtl">
