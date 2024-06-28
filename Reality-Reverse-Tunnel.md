@@ -177,8 +177,6 @@ nav_order: 10
         }
     ]
 }
-
-
 ```
 
 * * *
@@ -196,9 +194,7 @@ nav_order: 10
 </div>
 
 
-```json
-
-{
+```json{
     "name": "reverse_reality_grpc_server_multiport",
     "nodes": [
         {

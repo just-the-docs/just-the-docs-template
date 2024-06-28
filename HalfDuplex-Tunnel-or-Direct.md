@@ -153,9 +153,7 @@ password: passwd
 </div>
 
 
-```json
-
-{
+```json{
     "name": "reverse_reality_grpc_hd_multiport_server",
     "nodes": [
         {
@@ -247,7 +245,6 @@ password: passwd
         }
     ]
 }
-
 ```
 
 <div dir="rtl">
@@ -265,9 +262,7 @@ password: passwd
 
 </div>
 
-```json
-
-{
+```json{
     "name": "reverse_reality_grpc_client_hd_multiport_client",
     "nodes": [
         {
@@ -355,7 +350,6 @@ password: passwd
         }
     ]
 }
-
 ```
 
 <div dir="rtl">

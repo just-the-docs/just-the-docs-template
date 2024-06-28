@@ -14,9 +14,7 @@ nav_order: 2
 
 </div>
 
-```json
-
-{
+```json{
     "log": {
         "path": "log/",
         "core": {
@@ -47,7 +45,6 @@ nav_order: 2
         "config_name.json"
     ]
 }
-
 ```
 
 <div dir="rtl">

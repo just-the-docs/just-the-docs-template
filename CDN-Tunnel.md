@@ -157,7 +157,6 @@ nav_order: 15
 
 
 </div>
-
 ```json
 {
     "name": "config_reverse_tls_grpc_singleport_kharej",
@@ -232,7 +231,6 @@ nav_order: 15
         }
     ]
 }
-
 ```
 
 
@@ -353,7 +351,6 @@ nav_order: 15
         }
     ]
 }
-
 ```
 
 
@@ -462,8 +459,6 @@ nav_order: 15
 
 
 ```json
-
-
 {
     "name": "config_reverse_tls_grpc_multiport_iran",
     "nodes": [
@@ -673,7 +668,6 @@ nav_order: 15
         }
     ]
 }
-
 ```
 
 
@@ -797,7 +791,6 @@ nav_order: 15
         }
     ]
 }
-
 ```
 
 

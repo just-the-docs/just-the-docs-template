@@ -65,7 +65,6 @@ nav_order: 14
         }
     ]
 }
-
 ```
 <div dir="rtl">
 
@@ -129,7 +128,6 @@ nav_order: 14
 
     ]
 }
-
 ```
 <div dir="rtl">
 

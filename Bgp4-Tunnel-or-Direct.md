@@ -56,7 +56,6 @@ nav_order: 11
 
 
 ```json
-
 {
     "name": "bgp_client",
     "nodes": [

@@ -51,7 +51,6 @@ nav_order: 4
         }
     ]
 }
-
 ```
 
 <div dir="rtl">
@@ -91,7 +90,6 @@ nav_order: 4
         }
     ]
 }
-
 ```
 
 <div dir="rtl">
@@ -191,7 +189,6 @@ nav_order: 4
         }
     ]
 }
-
 ```
 
 <div dir="rtl">

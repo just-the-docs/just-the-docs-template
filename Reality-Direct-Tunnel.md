@@ -170,8 +170,6 @@ nav_order: 9
       
     ]
 }
-
-
 ```
 
 <div dir="rtl">
