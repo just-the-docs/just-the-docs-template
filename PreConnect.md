@@ -98,6 +98,16 @@ sequenceDiagram;
 </p>
 
 
+```mermaid
+sequenceDiagram;
+  participant A as User;
+  participant B as IRan;
+  participant C as Kharej;
+  B->>C: connect (Tls + Tcp handshake);
+  activate B;
+  A->>B: connect;
+  deactivate B;
+```
 
 ```json
 {
