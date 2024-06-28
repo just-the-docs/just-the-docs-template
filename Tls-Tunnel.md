@@ -106,8 +106,20 @@ sudo certbot certonly --standalone --preferred-challenges http --agree-tos --ema
 </p>
 
 
+```mermaid
+flowchart LR;
+    user1 --> A1;
+    user2 --> A1;
+    user3 --> A1;
+    subgraph Kharej;
+    B1[443] --> B2;
+    B2[2083];
+    end;
+    subgraph IRan;
+    A1[2083] --> B1;
+    end;
+```
 
-user ---> (2083) iran-server ---> (443) kharej-server-waterwall ---> 2083 kharej-server-xray
 
 
 <p dir="rtl">
