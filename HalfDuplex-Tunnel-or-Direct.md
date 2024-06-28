@@ -177,7 +177,8 @@ password: passwd
 
 
 
-```json{
+```json
+{
     "name": "reverse_reality_grpc_hd_multiport_server",
     "nodes": [
         {
@@ -287,7 +288,8 @@ fake sni: sahab.ir
 password: passwd
 
 
-```json{
+```json
+{
     "name": "reverse_reality_grpc_client_hd_multiport_client",
     "nodes": [
         {

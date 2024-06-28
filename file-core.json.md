@@ -13,7 +13,8 @@ nav_order: 2
 </p>
 
 
-```json{
+```json
+{
     "log": {
         "path": "log/",
         "core": {
