@@ -6,3 +6,17 @@ url: https://radkesvat.github.io
 
 aux_links:
   GitHub: https://github.com/radkesvat/WaterWall
+
+color_scheme: dark
+
+enable_copy_code_button: true
+
+callouts:
+  warning:
+    title: Warning
+    color: red
+
+kramdown:
+  syntax_highlighter_opts:
+    block:
+      line_numbers: true
