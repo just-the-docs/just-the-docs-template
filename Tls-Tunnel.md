@@ -449,6 +449,27 @@ flowchart LR;
 کانفیگ سرور ایران:
 </p>
 
+```mermaid
+flowchart LR;
+    user1 -- "Config Tunnel" --> A1;
+    user2 -- "Config Tunnel" --> A2;
+    user3 -- "Config Tunnel" --> A3;
+    user4 -- "Config Tunnel" --> A4;
+    subgraph Kharej;
+    B1[443 Waterwall] --> B2 & B3 & B4 & B5;
+    B2[2053 Xray];
+    B3[2083 Xray];
+    B4[... Xray];
+    B5[65535 Xray];
+    end;
+    subgraph IRan;
+    A1[2053] -- "TLS Handshake" --> B1;
+    A2[2083] -- "TLS Handshake" --> B1;
+    A3[...] -- "TLS Handshake" --> B1;
+    A4[65535] -- "TLS Handshake" --> B1;
+    end;
+```
+
 
 ```json
 {
