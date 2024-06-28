@@ -1,3 +1,8 @@
+---
+title: Home
+layout: home
+---
+
 # WaterWall Documentation
 
 WaterWall is a simple core for tunneling and even direct user-server connections. based on high-performance, fully customizeable nodes for creating any kind of protocol without writing code for it.
@@ -20,3 +25,6 @@ WaterWall is a simple core for tunneling and even direct user-server connections
 - [HalfDuplex Tunnel or Direct](HalfDuplex-Tunnel-or-Direct)
 - [Load balancing](Load-Balancing)
 - [CDN Tunnel Direct or Reverse](CDN-Tunnel)
+
+----
+
