@@ -112,14 +112,13 @@ flowchart LR;
     user2 --> A1;
     user3 --> A1;
     subgraph Kharej;
-    B1[443] --> B2;
-    B2[2083];
+    B1[443 Waterwall] --> B2;
+    B2[2083 Xray];
     end;
     subgraph IRan;
-    A1[2083] --> B1;
+    A1[2083 Waterwall] -- "TLS Handshake" --> B1;
     end;
 ```
-
 
 
 <p dir="rtl">
@@ -254,6 +253,8 @@ flowchart LR;
 برای اینکار ؛ باید پورت کاربر هارو بزاریم یه پورت دیگه به جز ۴۴۳ اما کانفیگ هاشون باید به همون پورت ۴۴۳ اشاره کنه  پس پورت رو در پنل میکنیم ۲۰۸۳ ؛ سپس کانفیگ واتر وال رو اینجوری تغییر میدیم:
 </p>
 
+
+
 <p dir="rtl">
 وقتی کاربر به کانفیگ تونل وصل شد:
 </p>
@@ -266,6 +267,24 @@ user ---> (443) iran-server ---> (443) kharej-server-waterwall ---> 2083 kharej-
 </p>
 
 user ---> (443) kharej-server-waterwall ---> 2083 kharej-server-xray
+
+
+```mermaid
+flowchart LR;
+    user1 -- "Config Tunnel" --> A1;
+    user2 -- "Config Tunnel" --> A1;
+    user3 -- "Config Tunnel" --> A1;
+    user4 -- "Config Direct" --> B1;
+    user5 -- "Config Direct" --> B1;
+    subgraph Kharej;
+    B1[443 Waterwall] --> B2;
+    B2[2083 Xray];
+    end;
+    subgraph IRan;
+    A1[2083] -- "TLS Handshake" --> B1;
+    end;
+```
+
 
 
 <p dir="rtl">
