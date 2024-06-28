@@ -15,3 +15,9 @@ callouts:
   warning:
     title: Warning
     color: red
+
+
+mermaid:
+  # Version of mermaid library
+  # Pick an available version from https://cdn.jsdelivr.net/npm/mermaid/
+  version: "9.1.3"
