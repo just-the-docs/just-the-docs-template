@@ -220,6 +220,18 @@ flowchart LR;
 </p>
 
 
+```mermaid
+flowchart LR;
+    subgraph Kharej;
+    B1[443];
+    B2[2083];
+    end;
+    subgraph IRan;
+    A1[443] --> B1;
+    A2[2083] --> B2;
+    end;
+```
+
 ```json
 {
     "name": "simple_port_to_port_x2",
