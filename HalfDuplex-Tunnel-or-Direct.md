@@ -1,5 +1,5 @@
 ---
-title: 13- HalfDuplex
+title: 13 - HalfDuplex
 layout: default
 ---
 

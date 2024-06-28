@@ -1,5 +1,5 @@
 ---
-title: 12- Trojan protocol
+title: 12 - Trojan protocol
 layout: default
 ---
 

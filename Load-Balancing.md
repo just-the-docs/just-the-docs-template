@@ -1,5 +1,5 @@
 ---
-title: 14- LoadBalancing 
+title: 14 - LoadBalancing 
 layout: default
 ---
 
