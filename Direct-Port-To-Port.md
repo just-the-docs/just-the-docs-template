@@ -105,14 +105,12 @@ flowchart LR;
 ```mermaid
 flowchart LR;
     subgraph Kharej;
-    B[443] ;
+    B[443];
     end;
     subgraph IRan;
     A1[443] --> B[443];
     A2[444] --> B[443];
-    A3[.
-    .
-    .] --> B[443];
+    A3[...] --> B[443];
     A4[65535] --> B[443];
     end;
 ```
