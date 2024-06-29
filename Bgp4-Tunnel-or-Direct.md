@@ -54,6 +54,19 @@ nav_order: 11
 ایپی خارج 1.1.1.1 فرض شده و همچنین پورت سرور خارج به شدت پیشناهاد میشه طبق استنادارد bgp 179 باشه
 </p>
 
+```mermaid
+flowchart LR;
+    subgraph Kharej;
+    B1[179] --> W_K;
+    B4[443 Xray];
+    W_K[Waterwall] --> B4
+    end;
+    subgraph IRan;
+    PIN[443] --> W_I;
+    W_I[Waterwall] -- "Bgp Handshake + Simulate"--> B1;
+    end;
+```
+
 ```json
 {
     "name": "bgp_client",
