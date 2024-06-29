@@ -186,6 +186,28 @@ flowchart LR;
 خوب بریم سراغ کانفیگ ریورس ریلیتی با ماکس که در حال حاضر خودم از همین برای کاربرهام استفاده می کنم
 </p>
 
+
+```mermaid
+flowchart LR;
+    subgraph Kharej;
+    W_K[Waterwall]
+    B4[all ports Xray];
+    end;
+    subgraph IRan;
+    PIN[all ports ] --> W_I[Waterwall] --> W_K --> W_I;
+    end;
+    W_K --> B4;
+    W_K --> B4;
+    W_K --> B4;
+    W_K --> B4;
+    1START:::hidden --> PIN;
+    2START:::hidden --> PIN;
+    3START:::hidden --> PIN;
+    4START:::hidden -->PIN;
+    classDef hidden display: none;
+```
+
+
 # سرور ایران
 
 * * *
