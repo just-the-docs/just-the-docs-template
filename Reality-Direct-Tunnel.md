@@ -81,20 +81,24 @@ nav_order: 9
 
 ```mermaid
 flowchart LR;
+    user1 -- "Config Tunnel" --> A1;
+    user2 -- "Config Tunnel" --> A2;
+    user3 -- "Config Tunnel" --> A3;
+    user4 -- "Config Tunnel" --> A4;
     subgraph Kharej;
-    B1[443];
-    B2[444];
-    B3[...];
-    B4[65535];
+    B1[443 Waterwall] --> B2 & B3 & B4 & B5;
+    B2[2053 Xray];
+    B3[2083 Xray];
+    B4[... Xray];
+    B5[65535 Xray];
     end;
     subgraph IRan;
-    A1[443] -- "Reality Handshake With SNI" --> B1;
-    A2[444] -- "Reality Handshake With SNI" --> B2;
-    A3[...] -- "Reality Handshake With SNI" --> B3;
-    A4[65535] -- "Reality Handshake With SNI" --> B4;
+    A1[2053] -- "Reality Handshake With SNI" --> B1;
+    A2[2083] -- "Reality Handshake With SNI" --> B1;
+    A3[...] -- "Reality Handshake With SNI" --> B1;
+    A4[65535] -- "Reality Handshake With SNI" --> B1;
     end;
 ```
-
 
 
 ```json
