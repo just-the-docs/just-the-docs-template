@@ -65,6 +65,22 @@ nav_order: 8
 </p>
 
 
+```mermaid
+flowchart LR;
+    subgraph User;
+    end;
+    subgraph IRan;
+    A[443];
+    end;
+    subgraph Kharej;
+    B[443];
+    B1[Waterwall];
+    end;
+    User --> A
+    A <--> B1
+    B1 --> B
+```
+
 ```json
 {
     "name": "myconf",
@@ -231,6 +247,34 @@ nav_order: 8
 سرور ایران:
 </p>
 
+
+
+```mermaid
+flowchart LR;
+    subgraph User1;
+    end;
+    subgraph User2;
+    end;
+    subgraph User3;
+    end;
+    subgraph IRan;
+    A[443];
+    A1[Waterwall Http2 Mux];
+    end;
+    subgraph Kharej;
+    B[Waterwall Http2 Mux];
+    B1[443 Xray]
+    end;
+    B --> B1;
+    B --> B1;
+    B --> B1;
+    B --> B1;
+    linkStyle 0 display:none;
+    User1 --> A --> A1;
+    User2 --> A --> A1;
+    User3 --> A --> A1;
+    A1 <-- "reverse" --> B;
+```
 
 ```json
 {

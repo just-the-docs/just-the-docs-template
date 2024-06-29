@@ -183,6 +183,10 @@ flowchart LR;
 }
 ```
 
+<p dir="rtl">
 در این مثال نود ProtoBuf اجباری نیست وجودش ؛ ولی وقتی قرار داشته باشه کانکشن grpc حساب میشه و میتونه از cdn هم رد بشه
+</p>
+
+
 
 [Homepage](.) | [Prev Page](PreConnect) | [Next Page](Reverse-Tunnel)
