@@ -79,6 +79,23 @@ nav_order: 9
 * * *
 
 
+```mermaid
+flowchart LR;
+    subgraph Kharej;
+    B1[443];
+    B2[444];
+    B3[...];
+    B4[65535];
+    end;
+    subgraph IRan;
+    A1[443] -- "Reality Handshake With SNI" --> B1;
+    A2[444] -- "Reality Handshake With SNI" --> B2;
+    A3[...] -- "Reality Handshake With SNI" --> B3;
+    A4[65535] -- "Reality Handshake With SNI" --> B4;
+    end;
+```
+
+
 
 ```json
 {

@@ -25,6 +25,29 @@ nav_order: 10
 - sni: matrix.snapp.ir
 - multi port (443 - 65535)
 
+```mermaid
+flowchart LR;
+    subgraph Kharej;
+    B1[443];
+    B2[444];
+    B3[...];
+    B4[65535];
+    W_K[Waterwall] --> B1 & B2 & B3 & B4
+    end;
+    subgraph IRan;
+    A1[443]    --> W_I;
+    A2[444]    --> W_I;
+    A3[...]    --> W_I;
+    A4[65535]  --> W_I;
+    W_I[Waterwall] <-- "Reverse Reality Handshake With SNI"--> W_K
+    W_I[Waterwall] <-- "Reverse Reality Handshake With SNI"--> W_K
+    W_I[Waterwall] <-- "Reverse Reality Handshake With SNI"--> W_K
+    W_I[Waterwall] <-- "Reverse Reality Handshake With SNI"--> W_K
+    end;
+```
+
+
+
 * * *
 
 # سرور ایران
@@ -206,6 +229,24 @@ nav_order: 10
 * * *
 
 
+
+```mermaid
+flowchart LR;
+    subgraph Kharej;
+    B1[443];
+    B2[444];
+    B3[...];
+    B4[65535];
+    W_K[Waterwall H2Mux] --> B1 & B2 & B3 & B4
+    end;
+    subgraph IRan;
+    A1[443]    --> W_I;
+    A2[444]    --> W_I;
+    A3[...]    --> W_I;
+    A4[65535]  --> W_I;
+    W_I[Waterwall H2Mux] <-- "Reverse Reality Handshake With SNI"--> W_K
+    end;
+```
 
 
 ```json
