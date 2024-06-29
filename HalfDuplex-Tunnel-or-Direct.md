@@ -52,6 +52,23 @@ nav_order: 13
 که اینجا فایل کاملشو قرار خواهم داد
 </p>
 
+```mermaid
+flowchart LR;
+    subgraph Kharej;
+    B1[443];
+    W_K[Waterwall];
+    B4[2083 Xray];
+    end;
+    subgraph IRan;
+    PIN[443] --> W_I[Waterwall] --> B1 --> W_I;
+    end;
+    B1 --> W_K --> B4;
+    1START:::hidden --> PIN;
+    classDef hidden display: none;
+```
+
+
+
 # اجرای ساده مالتی پورت
 
 * * *
@@ -72,25 +89,7 @@ nav_order: 13
 ادرس سرور خارج 1.1.1.1
 </p>
 
-```mermaid
-flowchart LR;
-    subgraph Kharej;
-    B1[443];
-    W_K[Waterwall];
-    B4[2083 Xray];
-    end;
-    subgraph IRan;
-    PIN[443] --> W_I[Waterwall] --> B1 --> W_I;
-    end;
-    B1 --> W_K --> B4;
-    1START:::hidden --> PIN;
-    2START:::hidden --> PIN;
-    3START:::hidden -->PIN;
-    classDef hidden display: none;
-```
-<p dir="rtl">
-گراف فقط یک پورت رو نشون داده ولی کانفیگ مالی پورته
-</p>
+
 
 ```json
 {
@@ -200,7 +199,6 @@ fake sni: sahab.ir
 ip kharej: 2.2.2.2
 
 password: passwd
-
 
 
 
