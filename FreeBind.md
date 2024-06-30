@@ -129,7 +129,7 @@ flowchart LR;
             "name": "input",
             "type": "TcpListener",
             "settings": {
-                "address": "؛؛",
+                "address": "::",
                 "port": 443,
                 "nodelay": true
             },
