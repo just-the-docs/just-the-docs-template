@@ -11,6 +11,7 @@ WaterWall is a simple core for tunneling and even direct user-server connections
 
 ## Contents
 
+- [اسکریپت های خودکار](Scripts)
 - [شروع](Begin)
 - [فایل core.json](file-core.json)
 - [فایل config.json](file-config.json)
