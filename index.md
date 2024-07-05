@@ -26,6 +26,9 @@ WaterWall is a simple core for tunneling and even direct user-server connections
 - [HalfDuplex Tunnel or Direct](HalfDuplex-Tunnel-or-Direct)
 - [Load balancing](Load-Balancing)
 - [CDN Tunnel Direct or Reverse](CDN-Tunnel)
+- [Free Bind Connection](FreeBind)
+
+
 
 ----
 
