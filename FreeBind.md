@@ -243,3 +243,4 @@ ip route add local 2a01:4f8:1c1b:276c::/64 dev eth0
 با تشکر از @Edizam که این ایده را در گیت هاب مطرح کردند
 </p>
 
+[Homepage](.) | [Prev Page](CDN-Tunnel)
