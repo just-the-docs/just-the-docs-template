@@ -29,6 +29,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/WaterWall-Docs/m
 ![31](https://raw.githubusercontent.com/Ptechgithub/configs/main/media/31.jpg)
 
 
+[Ptechgithub Github](ttps://raw.githubusercontent.com/Ptechgithub) | [Code Repo](https://raw.githubusercontent.com/Ptechgithub/WaterWall-Docs/)
 
 ***
 
