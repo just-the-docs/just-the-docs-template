@@ -1,7 +1,7 @@
 ---
 title: Start
 layout: default
-nav_order: 2
+nav_order: 3
 ---
 
 <p dir="rtl">
@@ -115,5 +115,4 @@ nav_order: 2
 nohup ./Waterwall &
 ```
 
-
-[Homepage](.) | [Next Page](file-core.json)
+[Homepage](.) | [Prev Page](Scripts) | [Next Page](Direct-Trojan)

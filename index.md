@@ -9,6 +9,18 @@ nav_order: 1
 WaterWall is a simple core for tunneling and even direct user-server connections. based on high-performance, fully customizeable nodes for creating any kind of protocol without writing code for it.
 
 
+## Automatic Install script
+
+```
+bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/WaterWall-Docs/main/install.sh)
+```
+![31](https://raw.githubusercontent.com/Ptechgithub/configs/main/media/31.jpg)
+
+
+
+
+
+
 ## Contents
 
 - [شروع](Begin)
