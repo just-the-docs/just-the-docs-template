@@ -15,12 +15,10 @@ nav_order: 2
 
 
 <p dir="rtl">
-دقت کنید که سورس کد این اسکریپت ها باز هست و در ریپازیتوری نویسنده اسکریپت قرار دارد و 
-
-و توسط خودشان آپدیت خواهد شد
+دقت کنید که سورس کد این اسکریپت ها باز هست  و توسط سازنده اسکریپت آپدیت خواهد شد
 </p>
 
-
+***
 
 
 ## Install script by Ptechgithub
@@ -31,5 +29,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/WaterWall-Docs/m
 ![31](https://raw.githubusercontent.com/Ptechgithub/configs/main/media/31.jpg)
 
 
+
+***
 
 [Homepage](.) | [Next Page](Begin)
