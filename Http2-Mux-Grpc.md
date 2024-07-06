@@ -156,17 +156,18 @@ flowchart LR;
                     }
                 ]
             },
-            "next": "pbserver"
-        },
-        {
-            "name": "pbserver",
-            "type": "ProtoBufServer",
-            "settings": {},
             "next": "h2server"
         },
+
         {
             "name": "h2server",
             "type": "Http2Server",
+            "settings": {},
+            "next": "h2server"
+        },
+         {
+            "name": "pbserver",
+            "type": "ProtoBufServer",
             "settings": {},
             "next": "output"
         },
