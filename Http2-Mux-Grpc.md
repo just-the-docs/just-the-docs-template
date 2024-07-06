@@ -163,7 +163,7 @@ flowchart LR;
             "name": "h2server",
             "type": "Http2Server",
             "settings": {},
-            "next": "h2server"
+            "next": "pbserver"
         },
          {
             "name": "pbserver",
