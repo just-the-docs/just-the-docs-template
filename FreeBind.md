@@ -238,9 +238,177 @@ ip route add local 2a01:4f8:1c1b:276c::/64 dev eth0
 * * *
 
 
+<p dir="rtl">
+الان که دیدید تغییرات خیلی جزیی نیاز بود تا ما به این قابلیت دست پیدا کنیم ؛ با انجام همین تغییرات روی هر روش دیگه حتی ریورس می توانید کانفیگ مورد نظرتونو ایجاد کنید ولی وقتی ریورس ایجاد می کنید ؛ سرور ایران باید رنج ایپی ۶ داشته باشه.
+</p>
+
+
+
+***
+
+<p dir="rtl">
+کانفیگ ریلیتی مستقیم با ماکس و ترکیب این روش میشه این:
+</p>
+
+<p dir="rtl">
+سرور ایران:
+</p>
+
+***
+
+```json
+
+{
+    "name": "iran",
+    "nodes": [
+        {
+            "name": "input",
+            "type": "TcpListener",
+            "settings": {
+                "address": "0.0.0.0",
+                "port": [23,65535],
+                "nodelay": true
+            },
+            "next": "port_header"
+        },
+        {
+            "name": "port_header",
+            "type": "HeaderClient",
+            "settings": {
+                "data": "src_context->port"
+            },
+            "next": "pbclient"
+        },
+        {
+            "name": "pbclient",
+            "type": "ProtoBufClient",
+            "settings": {},
+            "next": "h2client"
+        },
+        {
+            "name": "h2client",
+            "type": "Http2Client",
+            "settings": {
+                "host": "mysni.com",
+                "port": 443,
+                "path": "/",
+                "content-type": "application/grpc",
+                "concurrency": 64
+            },
+            "next": "halfc"
+        },
+        {
+            "name": "halfc",
+            "type": "HalfDuplexClient",
+            "settings": {},
+            "next": "reality_client"
+        },
+        {
+            "name": "reality_client",
+            "type": "RealityClient",
+            "settings": {
+                "sni": "mysni.com",
+                "password": "passwd"
+            },
+            "next": "outbound_to_kharej"
+        },
+        {
+            "name": "outbound_to_kharej",
+            "type": "TcpConnector",
+            "settings": {
+                "nodelay": true,
+                "address": "2a01:4f8:1c1b:276c::1/64",
+                "port": 443
+            }
+        }
+    ]
+}
+
+```
+
+
+<p dir="rtl">
+سرور خارج:
+</p>
+
+***
+
+```json
+
+{
+    "name": "kharej",
+    "nodes": [
+        {
+            "name": "input",
+            "type": "TcpListener",
+            "settings": {
+                "address": "::",
+                "port": 443,
+                "nodelay": true
+            },
+            "next": "reality_server"
+        },
+        {
+            "name": "reality_server",
+            "type": "RealityServer",
+            "settings": {
+                "destination": "reality_dest",
+                "password": "passwd"
+            },
+            "next": "halfs"
+        },
+        {
+            "name": "halfs",
+            "type": "HalfDuplexServer",
+            "settings": {},
+            "next": "h2server"
+        },
+        {
+            "name": "h2server",
+            "type": "Http2Server",
+            "settings": {},
+            "next": "pbserver"
+        },
+        {
+            "name": "pbserver",
+            "type": "ProtoBufServer",
+            "settings": {},
+            "next": "port_header"
+        },
+        {
+            "name": "port_header",
+            "type": "HeaderServer",
+            "settings": {
+                "override": "dest_context->port"
+            },
+            "next": "output"
+        },
+        {
+            "name": "output",
+            "type": "TcpConnector",
+            "settings": {
+                "nodelay": true,
+                "address": "127.0.0.1",
+                "port": "dest_context->port"
+            }
+        }
+    ]
+}
+```
+
+
+
+* * *
 
 <p dir="rtl">
 با تشکر از @Edizam که این ایده را در گیت هاب مطرح کردند
 </p>
+
+
+
+
+
+
+
 
 [Homepage](.) | [Prev Page](CDN-Tunnel)
