@@ -92,7 +92,9 @@ flowchart LR;
                 "host": "mydomain.ir",
                 "port": 443,
                 "path": "/",
-                "content-type": "application/grpc"
+                "content-type": "application/grpc",
+                "concurrency": 64
+
             },
             "next": "sslclient"
         },
@@ -188,6 +190,20 @@ flowchart LR;
 در این مثال نود ProtoBuf اجباری نیست وجودش ؛ ولی وقتی قرار داشته باشه کانکشن grpc حساب میشه و میتونه از cdn هم رد بشه
 </p>
 
+***
 
+
+<p dir="rtl">
+
+همونطور که در کانفیگ مشاهده می کنید ؛ در نود Http2Client یک پارامتر قرار دارد به اسم concurrency
+
+این به صورت پیشفرض 64 تنظیم شده و به این معنی هست که برای هر 64 کانکشن کاربر ؛ یک کانکشن به سرور خارج زده میشه
+
+اگه مشتری هاتون خیلی زیادن مثلا بالای 150 یا 200 تا ؛ بهتره concurrency رو ۲ برابر کنید بزارید 128 تا احتمال فیلترینگ بر اساس تعداد کانکشن هم نصف بشه
+
+
+</p>
+
+***
 
 [Homepage](.) | [Prev Page](PreConnect) | [Next Page](Reverse-Tunnel)
