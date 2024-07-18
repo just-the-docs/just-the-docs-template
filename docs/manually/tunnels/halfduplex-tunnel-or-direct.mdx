@@ -1,0 +1,336 @@
+---
+sidebar_position: 10
+---
+
+# HalfDuplex
+
+قابلیت HalfDuplex به این معنی است که هر اتصال (Connection) را به دو اتصال تبدیل می‌کنیم. یکی از این اتصالات فقط برای ارسال داده‌ها و دیگری فقط برای دریافت داده‌ها استفاده می‌شود. در ابتدای برقراری هر کدام از این اتصالات، یک Handshake از نوع TLS انجام می‌شود، حتی اگر دامنه‌های متفاوتی داشته باشند.
+
+انجام این عمل دو مزیت دارد:
+
+1. فایروال برای تحلیل ترافیک با محدودیت مواجه می‌شود، زیرا داده‌ها روی هر اتصال به صورت یک طرفه منتقل می‌شوند.
+
+2. این قابلیت حتی در اتصالات مستقیم نیز قابل پیاده‌سازی است و محدود به تونل نیست. این ویژگی می‌تواند از فیلتر شدن پیکربندی‌های مستقیم جلوگیری کند.
+
+اتصالاتی که داده‌ها به صورت دوطرفه (رفت و برگشتی) روی آنها منتقل می‌شوند، معمولاً نشان‌دهنده وجود تونل هستند. به عنوان مثال، در اتصالات عادی HTTP/2، داده‌هایی که به یک وب‌سایت ارسال می‌شوند، معمولاً ابتدا چند بسته داده (Packet) آپلود هستند و پس از آن، آپلود بسیار کمی روی آن اتصال انجام می‌شود.
+
+اما در اتصالات VPN که با استفاده از Multiplexing ایجاد شده‌اند، به طور مداوم آپلود روی اتصال انجام می‌شود. تجربه نشان داده است که این ویژگی برای تونل‌های معکوس (Reverse Tunnel) ضروری است تا کیفیت سرویس کاهش پیدا نکند.
+
+البته این روش ممکن است حتی تونل‌های عادی پورت به پورت را نیز در برابر فیلتر شدن مقاوم کند. هنوز این مورد را تست نکرده‌ام زیرا هدف اصلی من دستیابی به Reverse Reality با استفاده از HTTP/2 بوده است. فایل پیکربندی کامل آن را در ادامه قرار خواهم داد.
+
+## اجرای ساده چند پورت (Multi-port)
+
+قبل از ارائه پیکربندی نهایی Reverse Reality، بهتر است نحوه اعمال HalfDuplex را در حالت چند پورت ساده، جهت یادگیری توضیح دهم.
+
+#### سرور ایران
+
+حالت چند پورت با فرض آدرس سرور خارج 1.1.1.1:
+
+```json
+{
+    "name": "simple_multiport_hd_client",
+    "nodes": [
+        {
+            "name": "input",
+            "type": "TcpListener",
+            "settings": {
+                "address": "0.0.0.0",
+                "port": [23,65535],
+                "nodelay": true
+            },
+            "next": "port_header"
+        },
+        {
+            "name": "port_header",
+            "type": "HeaderClient",
+            "settings": {
+                "data": "src_context->port"
+            },
+            "next": "halfc"
+        }, 
+        {
+            "name": "halfc",
+            "type": "HalfDuplexClient",
+            "next": "output"
+        },
+        {
+            "name": "output",
+            "type": "TcpConnector",
+            "settings": {
+                "nodelay": true,
+                "address": "1.1.1.1",
+                "port": 443
+            }
+        }
+    ]
+}
+```
+
+#### سرور خارج
+```json
+{
+    "name": "simple_multiport_hd_server",
+    "nodes": [
+        {
+            "name": "input",
+            "type": "TcpListener",
+            "settings": {
+                "address": "0.0.0.0",
+                "port": 443,
+                "nodelay": true
+            },
+            "next": "halfs"
+        },
+        {
+            "name": "halfs",
+            "type": "HalfDuplexServer",
+            "settings": {},
+            "next": "port_header"
+        },
+        {
+            "name":"port_header",
+            "type": "HeaderServer",
+            "settings": {
+                "override": "dest_context->port"
+            },
+            "next": "output"
+
+        },
+        {
+            "name": "output",
+            "type": "TcpConnector",
+            "settings": {
+                "nodelay": true,
+                "address":"127.0.0.1",
+                "port":"dest_context->port"
+            }
+        }
+    ]
+}
+```
+
+## پیکربندی Reverse Reality با استفاده از mux
+در ادامه، پیکربندی Reverse Reality با استفاده از mux را ارائه می‌کنم که در حال حاضر خودم برای کاربرانم استفاده می‌کنم.
+
+#### سرور ایران
+
+:::note فرضیات
+- fake sni: sahab.ir
+- ip kharej: 2.2.2.2
+- password: passwd
+:::
+
+```json
+{
+    "name": "reverse_reality_grpc_hd_multiport_server",
+    "nodes": [
+        {
+            "name": "users_inbound",
+            "type": "TcpListener",
+            "settings": {
+                "address": "0.0.0.0",
+                "port": [23,65535],
+                "nodelay": true
+            },
+            "next": "header"
+        },
+        {
+            "name": "header",
+            "type": "HeaderClient",
+            "settings": {
+                "data": "src_context->port"
+            },
+            "next": "bridge2"
+        },
+        {
+            "name": "bridge2",
+            "type": "Bridge",
+            "settings": {
+                "pair": "bridge1"
+            }
+        },
+        {
+            "name": "bridge1",
+            "type": "Bridge",
+            "settings": {
+                "pair": "bridge2"
+            }
+        },
+        {
+            "name": "reverse_server",
+            "type": "ReverseServer",
+            "settings": {},
+            "next": "bridge1"
+        },
+        {
+            "name": "pbserver",
+            "type": "ProtoBufServer",
+            "settings": {},
+            "next": "reverse_server"
+        },
+        {
+            "name": "h2server",
+            "type": "Http2Server",
+            "settings": {},
+            "next": "pbserver"
+        },
+        {
+            "name": "halfs",
+            "type": "HalfDuplexServer",
+            "settings": {},
+            "next": "h2server"
+        },
+        {
+            "name": "reality_server",
+            "type": "RealityServer",
+            "settings": {
+                "destination": "reality_dest",
+                "password": "passwd"
+            },
+            "next": "halfs"
+        },
+        {
+            "name": "kharej_inbound",
+            "type": "TcpListener",
+            "settings": {
+                "address": "0.0.0.0",
+                "port": 443,
+                "nodelay": true,
+                "whitelist": [
+                    "2.2.2.2/32"
+                ]
+            },
+            "next": "reality_server"
+        },
+        {
+            "name": "reality_dest",
+            "type": "TcpConnector",
+            "settings": {
+                "nodelay": true,
+                "address": "sahab.ir",
+                "port": 443
+            }
+        }
+    ]
+}
+```
+
+#### سرور خارج
+
+:::note فرضیات
+- ایپی سرور ایران: 1.1.1.1
+- fake sni: sahab.ir
+- password: passwd
+:::
+
+```json
+{
+    "name": "reverse_reality_grpc_client_hd_multiport_client",
+    "nodes": [
+        {
+            "name": "outbound_to_core",
+            "type": "TcpConnector",
+            "settings": {
+                "nodelay": true,
+                "address": "127.0.0.1",
+                "port": "dest_context->port"
+            }
+        },
+        {
+            "name": "header",
+            "type": "HeaderServer",
+            "settings": {
+                "override": "dest_context->port"
+            },
+            "next": "outbound_to_core"
+        },
+        {
+            "name": "bridge1",
+            "type": "Bridge",
+            "settings": {
+                "pair": "bridge2"
+            },
+            "next": "header"
+        },
+        {
+            "name": "bridge2",
+            "type": "Bridge",
+            "settings": {
+                "pair": "bridge1"
+            },
+            "next": "reverse_client"
+        },
+        {
+            "name": "reverse_client",
+            "type": "ReverseClient",
+            "settings": {
+                "minimum-unused": 16
+            },
+            "next": "pbclient"
+        },
+        {
+            "name": "pbclient",
+            "type": "ProtoBufClient",
+            "settings": {},
+            "next": "h2client"
+        },
+        {
+            "name": "h2client",
+            "type": "Http2Client",
+            "settings": {
+                "host": "sahab.ir",
+                "port": 443,
+                "path": "/",
+                "content-type": "application/grpc",
+                "concurrency": 64
+            },
+            "next": "halfc"
+        },
+        {
+            "name": "halfc",
+            "type": "HalfDuplexClient",
+            "next": "reality_client"
+        },
+
+        {
+            "name": "reality_client",
+            "type": "RealityClient",
+            "settings": {
+                "sni": "sahab.ir",
+                "password": "passwd"
+            },
+            "next": "outbound_to_iran"
+        },
+        {
+            "name": "outbound_to_iran",
+            "type": "TcpConnector",
+            "settings": {
+                "nodelay": true,
+                "address": "1.1.1.1",
+                "port": 443
+            }
+        }
+    ]
+}
+```
+
+:::tip 
+یک نکته مهم که همیشه در پیکربندی‌های خود انجام می‌دهم، این است که بدون توجه به تعداد هسته‌های سرور ایران یا خارج، تعداد Worker ها در سرور خارج را همیشه 4 برابر تعداد Worker های سرور ایران قرار می‌دهم. این مقدار را به صورت دستی وارد می‌کنم.
+
+افزایش تعداد Worker ها به این نسبت، سرعت را به میزان قابل توجهی بهبود می‌بخشد. حتی اگر تعداد Worker ها را 8 برابر تنظیم کنید، مشکلی ایجاد نخواهد شد.
+
+تأکید می‌کنم که حتی اگر سرور شما تک هسته‌ای باشد، باز هم بهتر است این کار را انجام دهید و مشکلی ایجاد نخواهد کرد.
+
+دلیل این امر ارتباطی به مصرف CPU ندارد، بلکه به این خاطر است که هر Worker برای خود یک اتصال مجزا ایجاد می‌کند و همه کاربران روی یک اتصال Multiplexed قرار نمی‌گیرند.
+
+توجه داشته باشید که این نکته فقط برای Reverse Reality با mux صادق است. در تمام روش‌های دیگر، بهترین حالت این است که تعداد Worker ها صفر باشد.
+:::
+
+
+:::info اتصال مستقیم
+این قابلیت در اتصالات مستقیم نیز قابل پیاده‌سازی است، اما همانطور که در فایل JSON مشخص است، باید تغییراتی در سمت کلاینت نیز اعمال شود.
+
+بنابراین، فقط کلاینت خود Waterwall می‌تواند به آن متصل شود که در حال حاضر فقط برای دسکتاپ در دسترس است و ممکن است هیچ‌وقت برای موبایل ارائه نشود.
+
+البته در اندروید می‌توان خروجی آن را در Termux اجرا کرد، اما این چیزی نیست که همه بتوانند از آن استفاده کنند.
+:::
