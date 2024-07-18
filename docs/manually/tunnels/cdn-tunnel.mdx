@@ -71,9 +71,9 @@ sidebar_position: 12
 
 یعنی کاربر به پورت 443 سرور ایران متصل می‌شود و در نهایت به پورت 443 سرور خارجی وصل خواهد شد. شما می‌توانید پورت دلخواهی را در سرور خارجی قرار دهید.
 
-#### سرور خارج
 
-```json
+
+```json title="سرور خارج"
 {
     "name": "config_reverse_tls_grpc_singleport_kharej",
     "nodes": [
@@ -149,9 +149,9 @@ sidebar_position: 12
 }
 ```
 
-#### سرور ایران
 
-```json
+
+```json title="سرور ایران"
 {
     "name": "config_reverse_tls_grpc_singleport_iran",
     "nodes": [
@@ -259,8 +259,8 @@ sidebar_position: 12
 همین کار را می‌توانیم با چندین پورت نیز انجام دهیم و کاربر به هر پورتی که به سرور ایران متصل شود، به همان پورت در سرور خارجی وصل خواهد شد.
 
 
-#### سرور خارج
-```json
+
+```json title="سرور خارج"
 {
     "name": "config_reverse_tls_grpc_multiport_kharej",
     "nodes": [
@@ -344,8 +344,8 @@ sidebar_position: 12
 }
 ```
 
-#### سرور ایران
-```json
+
+```json title="سرور ایران"
 {
     "name": "config_reverse_tls_grpc_multiport_iran",
     "nodes": [
@@ -460,9 +460,9 @@ sidebar_position: 12
 ## مثال ترکیب با HalfDuplex
 من با روش‌های بالا تست کردم و مشکل پینگ یا نوسان ندیدم و همه چیز عالی بود. اما بازم خیلی خوب است که این ترکیب انجام شود.
 
-#### سرور خارج
 
-```json
+
+```json title="سرور خارج"
 {
     "name": "config_reverse_tls_grpc_multiport_hd_kharej",
     "nodes": [
@@ -552,9 +552,9 @@ sidebar_position: 12
 }
 ```
 
-#### سرور ایران
 
-```json
+
+```json title="سرور ایران"
 {
     "name": "config_reverse_tls_grpc_multiport_hd_iran",
     "nodes": [

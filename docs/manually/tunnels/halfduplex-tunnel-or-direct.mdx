@@ -22,11 +22,10 @@ sidebar_position: 10
 
 قبل از ارائه پیکربندی نهایی Reverse Reality، بهتر است نحوه اعمال HalfDuplex را در حالت چند پورت ساده، جهت یادگیری توضیح دهم.
 
-#### سرور ایران
 
-حالت چند پورت با فرض آدرس سرور خارج 1.1.1.1:
+حالت چند پورت با فرض آدرس سرور خارج `1.1.1.1`:
 
-```json
+```json title="سرور ایران"
 {
     "name": "simple_multiport_hd_client",
     "nodes": [
@@ -66,8 +65,8 @@ sidebar_position: 10
 }
 ```
 
-#### سرور خارج
-```json
+
+```json title="سرور خارج"
 {
     "name": "simple_multiport_hd_server",
     "nodes": [
@@ -112,7 +111,6 @@ sidebar_position: 10
 ## پیکربندی Reverse Reality با استفاده از mux
 در ادامه، پیکربندی Reverse Reality با استفاده از mux را ارائه می‌کنم که در حال حاضر خودم برای کاربرانم استفاده می‌کنم.
 
-#### سرور ایران
 
 :::note فرضیات
 - fake sni: sahab.ir
@@ -120,7 +118,7 @@ sidebar_position: 10
 - password: passwd
 :::
 
-```json
+```json title="سرور خارج"
 {
     "name": "reverse_reality_grpc_hd_multiport_server",
     "nodes": [
@@ -215,7 +213,6 @@ sidebar_position: 10
 }
 ```
 
-#### سرور خارج
 
 :::note فرضیات
 - ایپی سرور ایران: 1.1.1.1
@@ -223,7 +220,7 @@ sidebar_position: 10
 - password: passwd
 :::
 
-```json
+```json title="سرور خارج"
 {
     "name": "reverse_reality_grpc_client_hd_multiport_client",
     "nodes": [
