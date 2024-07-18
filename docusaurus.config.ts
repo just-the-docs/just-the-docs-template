@@ -4,14 +4,14 @@ import type * as Preset from '@docusaurus/preset-classic'
 
 const config: Config = {
   title: 'WaterWall',
-  tagline: 'Dinosaurs are cool',
+  tagline: 'WaterWall tunneling solutions',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://radkesvat.github.io/WaterWall-Docs',
+  url: 'https://radkesvat.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/WaterWall-Docs',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -20,6 +20,11 @@ const config: Config = {
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
+
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
