@@ -1,0 +1,23 @@
+---
+sidebar_position: 3
+---
+# نصب و راه‌اندازی اولیه WaterWall
+
+برای نصب WaterWall روی سرور، کامندهای زیر را به ترتیب اجرا کنید:
+
+1. دانلود فایل WaterWall:
+  ```sh
+  wget https://github.com/radkesvat/WaterWall/releases/download/vx.x/Waterwall-linux-64.zip
+  ```
+2. نصب unzip و اکسترکت فایل دانلود شده:
+  ```sh
+  apt install unzip && unzip Waterwall-linux-64.zip
+  ```
+3. تغییر permission فایل اجرایی WaterWall:
+  ```sh
+  chmod +rwx Waterwall
+  ```
+4. سپس طبق آموزش ها تانل خود را کانفیگ و اجرا کنید
+  ```sh
+  ./Waterwall
+  ```
