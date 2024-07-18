@@ -1,0 +1,134 @@
+# Freebind
+
+روش Freebind به ما این امکان را می‌دهد که به جای اتصال به یک آی‌پی مشخص سرور خارج، بین یک رنج آی‌پی که با سابنت‌ماسک مشخص می‌شود، تعادل بار ایجاد کنیم و به صورت تصادفی به یکی از آن‌ها متصل شویم.
+
+این عمل برای عدم فیلترینگ و بهبود سرعت بسیار مناسب به نظر می‌رسد.
+
+سرورها یک رنج عظیم از آی‌پی‌های IPv6 را در اختیار شما قرار می‌دهند که با استفاده از این قابلیت، می‌توانید هر اتصال جدید را به صورت تصادفی به یکی از آی‌پی‌های این رنج متصل کنید. به این ترتیب، فایروال همواره آی‌پی‌های متفاوت را مشاهده می‌کند. به عنوان مثال، سرورهای Hetzner رنج /64 را ارائه می‌دهند که به این معنی است که ۲ به توان ۶۴، یعنی ۱۸۴۴۶۷۴۴۰۷۳۷۰۹۵۵۱۶۱۵ آدرس آی‌پی برای اتصال در دسترس خواهد بود.
+
+## اجرای روش مستقیم
+
+ابتدا باید بدانیم که این روش نود جداگانه‌ای ندارد و ما باید در نودهای Listener و Connector تغییراتی ایجاد کنیم.
+
+فرض کنیم من یک سرور خارجی دارم که این آی‌پی IPv6 را هتزنر به من داده است:
+
+> 2a01:4f8:1c1b:276c::1/64
+
+برای مثال، می‌خواهیم کانفیگ TLS Multi Port را به حالت Freebind تبدیل کنیم.
+
+در سرور ایران، تغییری که انجام می‌دهیم این است که در TCP Connector می‌آییم و آدرس را به صورت یک رنج وارد می‌کنیم:
+
+```mermaid
+flowchart LR;
+    user1 --> A1;
+    user2 --> A1;
+    user3 --> A1;
+    subgraph Kharej;
+    B1[443 Waterwall] --> B2;
+    B1[443 Waterwall] --> B2;
+    B1[443 Waterwall] --> B2;
+    B2[2083 Xray];
+    end;
+    subgraph IRan;
+    A1[2083 Waterwall] -- "TLS Handshake + Random Dest IP6" --> B1;
+    A1[2083 Waterwall] -- "TLS Handshake + Random Dest IP6" --> B1;
+    A1[2083 Waterwall] -- "TLS Handshake + Random Dest IP6" --> B1;
+    end;
+  ```
+
+
+#### سرور ایران
+  ```json
+  {
+    "name": "tls_port_to_port",
+    "nodes": [
+        {
+            "name": "input",
+            "type": "TcpListener",
+            "settings": {
+                "address": "0.0.0.0",
+                "port": 2083,
+                "nodelay": true
+            },
+            "next": "mysslclient"
+        },
+        {
+            "name": "mysslclient",
+            "type": "OpenSSLClient",
+            "settings": {
+                "sni": "mydomain.ir",
+                "verify": true,
+                "alpn":"http/1.1"
+            },
+            "next": "output"
+        },
+        {
+            "name": "output",
+            "type": "TcpConnector",
+            "settings": {
+                "nodelay": true,
+                "address": "2a01:4f8:1c1b:276c::1/64",
+                "port": 443
+            }
+        }
+    ]
+}
+```
+همانطور که مشاهده می‌کنید، دقیقاً همان آی‌پی که هتزنر داده است، همراه با رنج آن، در پارامتر `address` قرار گرفته است.
+
+
+####  سرور خارج
+
+```json
+{
+    "name": "tls_port_to_port_kharej",
+    "nodes": [
+        {
+            "name": "input",
+            "type": "TcpListener",
+            "settings": {
+                "address": "::",
+                "port": 443,
+                "nodelay": true
+            },
+            "next": "mysslserver"
+        },
+        {
+            "name": "mysslserver",
+            "type": "OpenSSLServer",
+            "settings": {
+                "cert-file": "fullchain.pem",
+                "key-file": "privkey.pem",
+                "alpns": [
+                    {
+                        "value": "h2",
+                        "next": "node->next"
+                    },
+                    {
+                        "value": "http/1.1",
+                        "next": "node->next"
+                    }
+                ]
+            },
+            "next": "output"  
+        },
+        {
+            "name": "output",
+            "type": "TcpConnector",
+            "settings": {
+                "nodelay": true,
+                "address": "127.0.0.1",
+                "port": 2083
+            }
+        }
+    ]
+}
+```
+
+تنها تغییر این بود که در نود Listener، پارامتر `address` به جای "0.0.0.0" به "::" تغییر پیدا کرد. این باعث می‌شود که علاوه بر اتصال‌های آی‌پی ۴، بتوانیم اتصال‌های آی‌پی ۶ را نیز دریافت کنیم.
+
+در این مرحله، کار تمام است، اما یک کار مهم باقی مانده است که حتماً باید در سرور خارج انجام دهیم. نیاز است که این دستور را در سرور خارج اجرا کنید:
+
+```bash 
+ip route add local 2a01:4f8:1c1b:276c::/64 dev eth0
+```
