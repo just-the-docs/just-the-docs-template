@@ -14,16 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-         fetch-depth: 0
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-         node-version: 18
-         cache: pnpm
+          node-version: 18
+          cache: yarn
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-        
       - name: Install dependencies
-        run: pnpm install
-      - name: Build website
-        run: pnpm build
+        run: yarn install --frozen-lockfile
+      - name: Test build website
+        run: yarn build
