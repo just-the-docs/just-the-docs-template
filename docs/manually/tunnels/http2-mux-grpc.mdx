@@ -4,23 +4,23 @@ sidebar_position: 4
 
 # Http2 Mux Grpc
 
-اضافه کردن http2 به تونل، باعث می‌شود که ما به امکاناتی که Http2 ارائه می‌دهد دسترسی پیدا کنیم، از جمله mux و grpc.
+افزودن پروتکل Http2 به تونل، امکانات و ویژگی‌های جدیدی را در اختیار ما قرار می‌دهد، از جمله قابلیت‌های multiplexing (mux) و gRPC.
 
-با استفاده از grpc می‌توان کانکشن را از کلود فلیر هم عبور داد و مستقیم هم می‌توان استفاده کرد، فرقی نمی‌کند.
+با بهره‌گیری از gRPC، می‌توان ارتباط را هم از طریق سرویس Cloudflare عبور داد و هم به صورت مستقیم استفاده کرد، بدون تفاوت.
 
-و mux هم باعث می‌شود تعداد کانکشن‌های کمتری بین سرور ایران و خارج ایجاد شود و هند شیک تایم هم تا حد خیلی خوبی پایین بیاید.
+استفاده از mux نیز باعث کاهش تعداد اتصالات (connections) بین سرور داخل ایران و خارج می‌شود و همچنین زمان handshake را به میزان قابل توجهی بهبود می‌بخشد.
 
-استفاده از روش‌های تونل بدون mux باعث می‌شود این احتمال وجود داشته باشد که سرور خارج شما دچار اختلال یا حتی در نهایت فیلتر شود.
+روش‌های تونل بدون mux، احتمال بروز اختلال یا حتی فیلتر شدن سرور خارجی شما را افزایش می‌دهند.
 
-پس به شدت توصیه می‌کنم این مورد را در تونل‌هایتان اعمال کنید، به‌خصوص اگر مشتری زیاد دارید روی یک سرور.
+بنابراین، به ویژه اگر تعداد زیادی کاربر روی یک سرور دارید، اکیداً توصیه می‌شود این قابلیت را در تونل‌های خود پیاده‌سازی کنید.
 
-وقتی که از http2 استفاده می‌کنیم، دیگر نیازی به preconnect نداریم و استفاده از آن می‌توان گفت بی‌تأثیر است.
+هنگام استفاده از Http2، دیگر نیازی به preconnect نیست و تأثیر چندانی نخواهد داشت.
 
-## اعمال روی Tls tunnel
+## پیاده‌سازی روی Tls tunnel
 
-آی‌پی سرور خارج 1.1.1.1 فرض شده است؛ اگر آی‌پی پشت دامنه است هم می‌توانید در node output دامنه وارد کنید به جای آی‌پی.
+در این مثال، آدرس IP سرور خارجی `1.1.1.1` فرض شده است. اگر IP پشت دامنه قرار دارد، می‌توانید در بخش `node output`، به جای IP، نام دامنه را وارد کنید.
 
-## فلوچارت سرور ایران
+## فلوچارت
 
 ```mermaid
 flowchart LR;
@@ -41,132 +41,134 @@ flowchart LR;
     end;
 ```
 
-
-
 ```json title="سرور ایران"
 {
-    "name": "tls_port_to_port_grpc_iran",
-    "nodes": [
-        {
-            "name": "input",
-            "type": "TcpListener",
-            "settings": {
-                "address": "0.0.0.0",
-                "port": 443,
-                "nodelay": true
-            },
-            "next": "pbclient"
-        },
-        {
-            "name": "pbclient",
-            "type": "ProtoBufClient",
-            "settings": {},
-            "next": "h2client"
-        },
-        {
-            "name": "h2client", 
-            "type": "Http2Client",
-            "settings": {
-                "host": "mydomain.ir",
-                "port": 443,
-                "path": "/",
-                "content-type": "application/grpc",
-                "concurrency": 64
-                
-            },
-            "next": "sslclient"
-        },
-        {
-            "name": "sslclient",
-            "type": "OpenSSLClient",
-            "settings": {
-                "sni": "mydomain.ir",
-                "verify": true,
-                "alpn": "h2"
-            },
-            "next": "output"
-        },
-        {
-            "name": "output",
-            "type": "TcpConnector",
-            "settings": {
-                "nodelay": true,
-                "address": "1.1.1.1",
-                "port": 443
-            }
-        }
-    ]
+  "name": "tls_port_to_port_grpc_iran",
+  "nodes": [
+    {
+      "name": "input",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true
+      },
+      "next": "pbclient"
+    },
+    {
+      "name": "pbclient",
+      "type": "ProtoBufClient",
+      "settings": {},
+      "next": "h2client"
+    },
+    {
+      "name": "h2client",
+      "type": "Http2Client",
+      "settings": {
+        "host": "mydomain.ir",
+        "port": 443,
+        "path": "/",
+        "content-type": "application/grpc",
+        "concurrency": 64
+      },
+      "next": "sslclient"
+    },
+    {
+      "name": "sslclient",
+      "type": "OpenSSLClient",
+      "settings": {
+        "sni": "mydomain.ir",
+        "verify": true,
+        "alpn": "h2"
+      },
+      "next": "output"
+    },
+    {
+      "name": "output",
+      "type": "TcpConnector",
+      "settings": {
+        "nodelay": true,
+        "address": "1.1.1.1",
+        "port": 443
+      }
+    }
+  ]
 }
 ```
-
-
-
 
 ```json title="سرور خارج"
 {
-    "name": "tls_port_to_port_grpc_kharej",
-    "nodes": [
-        {
-            "name": "input",
-            "type": "TcpListener",
-            "settings": {
-                "address": "0.0.0.0",
-                "port": 443,
-                "nodelay": true
-            },
-            "next": "sslserver"
-        },
-        {
-            "name": "sslserver",
-            "type": "OpenSSLServer",
-            "settings": {
-                "cert-file": "fullchain.pem",
-                "key-file": "privkey.pem",
-                "alpns": [
-                    {
-                        "value": "h2",
-                        "next": "node->next"
-                    },
-                    {
-                        "value": "http/1.1",
-                        "next": "node->next"
-                    }
-                ]
-            },
-            "next": "h2server"
-        },
-        
-        {
-            "name": "h2server",
-            "type": "Http2Server",
-            "settings": {},
-            "next": "pbserver"
-        },
-         {
-            "name": "pbserver",
-            "type": "ProtoBufServer",
-            "settings": {},
-            "next": "output"
-        },
-        {
-            "name": "output",
-            "type": "Connector",
-            "settings": {
-                "nodelay": true,
-                "address": "127.0.0.1",
-                "port": 2083
-            }
-        }
-    ]
+  "name": "tls_port_to_port_grpc_kharej",
+  "nodes": [
+    {
+      "name": "input",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true
+      },
+      "next": "sslserver"
+    },
+    {
+      "name": "sslserver",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "fullchain.pem",
+        "key-file": "privkey.pem",
+        "alpns": [
+          {
+            "value": "h2",
+            "next": "node->next"
+          },
+          {
+            "value": "http/1.1",
+            "next": "node->next"
+          }
+        ]
+      },
+      "next": "h2server"
+    },
+
+    {
+      "name": "h2server",
+      "type": "Http2Server",
+      "settings": {},
+      "next": "pbserver"
+    },
+    {
+      "name": "pbserver",
+      "type": "ProtoBufServer",
+      "settings": {},
+      "next": "output"
+    },
+    {
+      "name": "output",
+      "type": "Connector",
+      "settings": {
+        "nodelay": true,
+        "address": "127.0.0.1",
+        "port": 2083
+      }
+    }
+  ]
 }
 ```
 
-> در این مثال، node ProtoBuf اجباری نیست وجودش، ولی وقتی قرار داشته باشد، کانکشن grpc حساب می‌شود و می‌تواند از CDN هم رد شود.
+در این مثال، وجود node ProtoBuf الزامی نیست، اما با قرار دادن آن، ارتباط به عنوان gRPC شناخته می‌شود و می‌تواند از طریق CDN عبور کند.
 
-:::info  concurrency
-همان‌طور که در کانفیگ مشاهده می‌کنید، در node Http2Client یک پارامتر قرار دارد به اسم concurrency.
+:::info پارامتر concurrency
+همانطور که در پیکربندی مشاهده می‌کنید، در گره Http2Client پارامتری به نام concurrency وجود دارد.
 
-این به صورت پیش‌فرض 64 تنظیم شده است و به این معنی است که برای هر 64 کانکشن کاربر، یک کانکشن به سرور خارج زده می‌شود.
+به صورت پیش‌فرض، مقدار آن 64 تنظیم شده است که بدین معناست به ازای هر 64 اتصال کاربر، یک اتصال به سرور خارجی برقرار می‌شود.
 
-اگر مشتری‌هایتان خیلی زیاد هستند، مثلاً بالای 150 یا 200 تا، بهتر است concurrency را 2 برابر کنید و 128 بگذارید تا احتمال فیلترینگ بر اساس تعداد کانکشن هم نصف شود.
+اگر تعداد کاربران شما بسیار زیاد است (مثلاً بیش از 150 یا 200 نفر)، پیشنهاد می‌شود مقدار concurrency را دو برابر کنید و روی 128 تنظیم نمایید تا احتمال فیلتر شدن بر اساس تعداد اتصالات نیز نصف شود.
 :::
+
+#### دانشنامه Http2 و gRPC در WaterWall
+
+- Http2: نسخه بهبود یافته پروتکل HTTP که امکاناتی مانند multiplexing، فشرده‌سازی هدر، و Server Push را ارائه می‌دهد. استفاده از Http2 در تونل‌های WaterWall، کارایی و عملکرد را به میزان چشمگیری افزایش می‌دهد.
+- gRPC: چارچوبی برای ارتباطات بین سرویس‌ها که از Http2 برای انتقال داده بهره می‌برد. با استفاده از gRPC در پیکربندی تونل، امکان عبور ارتباط از سرویس‌های CDN مانند Cloudflare فراهم می‌شود.
+- Multiplexing (Mux): قابلیت Http2 برای برقراری چندین ارتباط همزمان روی یک اتصال واحد. در WaterWall، mux باعث کاهش تعداد اتصالات بین سرور داخل و خارج ایران شده و زمان handshake را بهبود می‌بخشد.
+- Concurrency: پارامتری در گره Http2Client که تعداد اتصالات کاربر به ازای هر اتصال به سرور خارجی را مشخص می‌کند. تنظیم مقدار مناسب برای concurrency بسته به تعداد کاربران، از اهمیت بالایی برخوردار است.
+- ProtoBuf (Protocol Buffers): فرمت سریال‌سازی داده توسعه یافته توسط Google که در gRPC به کار می‌رود. گره‌های ProtoBufClient و ProtoBufServer در پیکربندی WaterWall، نقش مهمی در شناسایی ارتباط به عنوان gRPC ایفا می‌کنند.

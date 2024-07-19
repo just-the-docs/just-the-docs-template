@@ -6,674 +6,328 @@ sidebar_position: 12
 
 ## هدف
 
-یکی از اهداف اصلی در شروع این پروژه، دستیابی به تونل معکوس با استفاده از کلود فلیر بود. هرچند روش‌های متعددی برای ایجاد تونل معکوس وجود دارد، اما در این پروژه تلاش شده است تا یک نسخه بهینه و آزمایش شده ارائه شود که انعطاف‌پذیر نیز باشد. به این ترتیب، در صورت وجود ایده‌های جدید، می‌توان آنها را به همین تونل اضافه کرد.
+هدف اصلی این پروژه، ایجاد یک تونل معکوس بهینه و آزمایش شده با استفاده از Cloudflare است که انعطاف‌پذیری لازم برای اضافه کردن ایده‌های جدید را نیز دارد.
 
-## مزایای استفاده از کلود فلیر
+## مزایای استفاده از Cloudflare
 
-تونل معکوس با استفاده از کلود فلیر یکی از امن‌ترین روش‌های تونل محسوب می‌شود و برای افرادی که نگران دسترسی غیرمجاز به سرور ایرانی یا مشکلات دیگر هستند، مناسب است. دلیل این امنیت بالا آن است که کلود فلیر یکی از قانونی‌ترین و تمیزترین آی‌پی‌هایی است که در اینترنت وجود دارد. حتی دولت‌ها نیز گاهی سرورهای ایرانی خود را پشت کلود فلیر قرار می‌دهند. به طور کلی، اکثر وب‌سایت‌ها، چه بزرگ و چه کوچک، از کلود فلیر استفاده می‌کنند تا از مزایای آن مانند محافظت در برابر حملات DDoS و غیره بهره‌مند شوند. این موضوع، چه برای وب‌سایت‌های ایرانی و چه خارجی صادق است.
+- یکی از امن‌ترین روش‌های تونل به دلیل استفاده از آی‌پی‌های تمیز و قانونی Cloudflare
+- مناسب برای کاهش نگرانی از دسترسی غیرمجاز به سرور ایرانی
+- محافظت در برابر حملات DDoS و سایر مزایای Cloudflare
 
-## نیاز به دامنه شخصی
+## نیازمندی‌ها
 
-برای استفاده از این روش، نیاز به یک دامنه شخصی داریم. شخصاً دامنه `.ir` را بهترین گزینه می‌دانم، اما دامنه‌های دیگر نیز باید کار کنند. در مورد استفاده از دامنه `.ir`، نگرانی خاصی وجود ندارد، زیرا اتصال تحت پروتکل امن TLS برقرار می‌شود و مشکلی ایجاد نخواهد شد. من و دیگر دوستان به مدت طولانی از این روش استفاده کرده‌ایم. حتی شما نیز احتمالاً فروشندگانی را دیده‌اید که کانفیگ مستقیم با دامنه `.ir` را ارائه می‌کنند و تا جایی که من اطلاع دارم، این روش برای آنها مشکلی ایجاد نکرده است، حتی پس از فیلترینگ دامنه‌هایشان. بنابراین از نظر من، نگرانی خاصی در مورد انتخاب نوع دامنه وجود ندارد.
+1. **دامنه شخصی**: ترجیحاً دامنه `.ir` (اما سایر دامنه‌ها نیز کار می‌کنند)
 
-## نیاز به گواهینامه امنیتی (سرتیفیکیت)
+   - استفاده از دامنه `.ir` نگرانی خاصی ندارد زیرا اتصال تحت پروتکل امن TLS برقرار می‌شود.
 
-برای دامنه، باید یک گواهینامه امنیتی (سرتیفیکیت) دریافت شود تا پروتکل TLS فعال گردد. معمولاً از ابزار `certbot` برای این منظور استفاده می‌شود. علاوه بر این، شما می‌توانید گواهینامه امنیتی را از خود کلود فلیر نیز دریافت کنید.
+2. **گواهینامه امنیتی (Certificate)**:
 
-اگر گواهینامه امنیتی را از کلود فلیر دریافت کنید، تفاوت آن با گواهینامه `certbot` این است که فقط کلود فلیر به آن گواهینامه اعتماد می‌کند. شما نمی‌توانید با آن گواهینامه از جای دیگری به سرور متصل شوید. به عنوان مثال، اگر یک کانفیگ مستقیم با آن گواهینامه ایجاد کنید، گوشی قادر به اتصال نخواهد بود، مگر اینکه گزینه `allowinsecure` فعال باشد.
+   - دریافت گواهینامه از طریق ابزار `certbot` یا Cloudflare
+   - گواهینامه Cloudflare فقط توسط Cloudflare قابل اعتماد است و برای کانفیگ مستقیم کار نمی‌کند.
+   - هر دو روش برای تونل Cloudflare مناسب هستند.
 
-در مجموع، این جزئیات کوچکی هستند. از آنجایی که ما گواهینامه را برای تونل کلود فلیر می‌خواهیم، هر دو روش (`certbot` و کلود فلیر) کارایی لازم را دارند.
+3. **زیردامنه (Subdomain)**:
 
-## نکته مهم در مورد زیردامنه (Subdomain)
+   - گواهینامه `certbot` فقط برای زیردامنه درخواست شده معتبر است، مگر به روش Wildcard درخواست شود.
+   - Cloudflare به صورت پیش‌فرض گواهینامه Wildcard ارائه می‌دهد.
+   - زیردامنه‌ها با گواهینامه Cloudflare باید تک‌بخشی باشند (مثلاً `sub1.mydomain.com` مجاز است اما `sub2.sub1.mydomain.com` خیر).
 
-نکته دوم در مورد زیردامنه (Subdomain) است. اگر از `certbot` برای دریافت گواهینامه امنیتی استفاده می‌کنید، گواهینامه‌ای که به شما داده می‌شود فقط برای زیردامنه‌ای که درخواست داده‌اید کارایی دارد، مگر اینکه به روش Wildcard درخواست دهید. در آن صورت، گواهینامه برای تمامی زیردامنه‌ها معتبر خواهد بود. آموزش‌های زیادی در این خصوص به زبان فارسی در اینترنت و یوتیوب وجود دارد و کار پیچیده‌ای نیست.
+4. فعال‌سازی **gRPC** در Cloudflare:
 
-اگر از کلود فلیر گواهینامه امنیتی دریافت می‌کنید، کلود فلیر به صورت پیش‌فرض یک گواهینامه Wildcard به شما می‌دهد که می‌توانید برای هر زیردامنه‌ای از آن استفاده کنید.
+   - فعال‌سازی از طریق بخش "Network" در پنل Cloudflare
+   - غیرفعال کردن "Bot Fight Mode"
+   - تنظیم حداقل نسخه پروتکل TLS روی 1.2
+   - تنظیم "SSL/TLS encryption mode" روی "Full"
 
-اگر از گواهینامه کلود فلیر استفاده می‌کنید، نکته مهم دیگری که وجود دارد این است که زیردامنه‌های شما فقط باید یک مرحله‌ای باشند. گواهینامه کلود فلیر برای زیردامنه‌های دو بخشی و بیشتر کار نمی‌کند.
-:::note
-به عنوان مثال، این زیردامنه مجاز است: `sub1.mydomain.com`
+5. **محدودیت پورت** در Cloudflare:
+   - اتصال Cloudflare به سرور ایران فقط از طریق پورت 443
+   - Waterwall از یک سیستم فیلترینگ بسته‌های داخلی پشتیبانی می‌کند که امکان استفاده دوگانه از پورت 443 را فراهم می‌کند.
 
-اما این زیردامنه با گواهینامه کلود فلیر مجاز نیست: `sub2.sub1.mydomain.com`
-:::
-
-اگر می‌خواهید از کلود فلیر گواهینامه امنیتی دریافت کنید، قبلاً یک آموزش همراه با تصاویر ارائه کرده‌ام که می‌تواند به شما کمک کند:
-
-[لینک آموزش دریافت گواهینامه از کلود فلیر](https://github.com/radkesvat/RTCF/blob/main/docs/private_domain.md)
-
-## فعال‌سازی gRPC در کلود فلیر
-
-مرحله بعدی این است که در پنل کلود فلیر، گزینه gRPC را فعال کنید. می‌توانید این کار را در بخش "Network" انجام دهید.
-
-همچنین حتماً بررسی کنید که گزینه "Bot Fight Mode" غیرفعال باشد. این گزینه به صورت پیش‌فرض غیرفعال است، اما دیده‌ام که برخی افراد آن را فعال کرده‌اند و ساعت‌ها برای آزمایش و رفع اشکال صرف کرده‌اند تا متوجه شدند که مشکل از همین گزینه نشأت می‌گیرد.
-
-به طور کلی، توصیه می‌شود که ویژگی‌های امنیتی خاص را بدون دلیل فعال نکنید، زیرا ممکن است با مشکلاتی مواجه شوید.
-
-سپس در تنظیمات TLS، حداقل نسخه پروتکل را برابر با 1.2 قرار دهید.
-
-همچنین گزینه "SSL/TLS encryption mode" را برابر با "Full" تنظیم کنید.
-
-## محدودیت پورت در کلود فلیر
-
-نکته آخر این است که کلود فلیر فقط باید به پورت 443 سرور ایران متصل شود. حتی پورت‌های دیگر مانند 2083 نیز کار نمی‌کنند. این جزو قوانین کلود فلیر است که انتقال داده gRPC فقط روی این پورت باشد.
-
-با این حال، همانطور که در روش‌های قبلی نشان داده شده است، Waterwall یک سیستم فیلترینگ بسته‌های داخلی دارد و ما همچنان می‌توانیم از پورت 443 به صورت دوگانه استفاده کنیم، حتی اگر با چندین پورت ترکیب شده باشد.
-
-## نمونه‌های مختلف تونل معکوس با gRPC
-
-در اینجا چند نوع مختلف از این نوع تونل معکوس را مشاهده خواهیم کرد.
-
-معمولاً شما در فایل پیکربندی سرور ایران تغییر خاصی نمی‌دهید. در سرور ایران، به فایل‌های گواهینامه امنیتی نیاز دارید که باید آنها را در کنار فایل اجرایی Waterwall قرار دهید.
+## نمونه‌های تونل معکوس با gRPC
 
 ### مثال ساده: تونل معکوس TLS gRPC تک‌پورت
 
-ابتدا یک مثال ساده از تونل معکوس TLS gRPC تک‌پورت را ارائه می‌کنم. این کانفیگ فقط پورت 443 را تونل می‌کند.
-
-یعنی کاربر به پورت 443 سرور ایران متصل می‌شود و در نهایت به پورت 443 سرور خارجی وصل خواهد شد. شما می‌توانید پورت دلخواهی را در سرور خارجی قرار دهید.
-
-
+این کانفیگ فقط پورت 443 را تونل می‌کند. کاربر به پورت 443 سرور ایران متصل می‌شود و در نهایت به پورت 443 سرور خارجی وصل می‌شود.
 
 ```json title="سرور خارج"
 {
-    "name": "config_reverse_tls_grpc_singleport_kharej",
-    "nodes": [
-        {
-            "name": "core_outbound",
-            "type": "TcpConnector",
-            "settings": {
-                "nodelay": true,
-                "address": "127.0.0.1",
-                "port": 443
-            }
-        },
-        {
-            "name": "bridge1",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge2"
-            },
-            "next": "core_outbound"
-        },
-        {
-            "name": "bridge2",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge1"
-            },
-            "next": "reverse_client"
-        },
-        {
-            "name": "reverse_client",
-            "type": "ReverseClient",
-            "settings": {
-            },
-            "next": "grpc_client"
-        },
-        {
-            "name": "grpc_client",
-            "type": "ProtoBufClient",
-            "settings": {},
-            "next": "h2client"
-        },
-        {
-            "name": "h2client",
-            "type": "Http2Client",
-            "settings": {
-                "host": "sub.mydomain.com",
-                "port": 443,
-                "path": "/service",
-                "content-type": "application/grpc"
-            },
-            "next": "sslclient"
-        },
-        {
-            "name": "sslclient",
-            "type": "OpenSSLClient",
-            "settings": {
-                "sni": "sub.mydomain.com",
-                "verify": true,
-                "alpn": "h2"
-            },
-            "next": "iran_outbound"
-        },
-        {
-            "name": "iran_outbound",
-            "type": "TcpConnector",
-            "settings": {
-                "nodelay": true,
-                "address": "sub.mydomain.com",
-                "port": 443
-            }
-        }
-    ]
+  "name": "config_reverse_tls_grpc_singleport_kharej",
+  "nodes": [
+    {
+      "name": "core_outbound",
+      "type": "TcpConnector",
+      "settings": {
+        "nodelay": true,
+        "address": "127.0.0.1",
+        "port": 443
+      }
+    },
+    {
+      "name": "bridge1",
+      "type": "Bridge",
+      "settings": {
+        "pair": "bridge2"
+      },
+      "next": "core_outbound"
+    },
+    {
+      "name": "bridge2",
+      "type": "Bridge",
+      "settings": {
+        "pair": "bridge1"
+      },
+      "next": "reverse_client"
+    },
+    {
+      "name": "reverse_client",
+      "type": "ReverseClient",
+      "settings": {},
+      "next": "grpc_client"
+    },
+    {
+      "name": "grpc_client",
+      "type": "ProtoBufClient",
+      "settings": {},
+      "next": "h2client"
+    },
+    {
+      "name": "h2client",
+      "type": "Http2Client",
+      "settings": {
+        "host": "sub.mydomain.com",
+        "port": 443,
+        "path": "/service",
+        "content-type": "application/grpc"
+      },
+      "next": "sslclient"
+    },
+    {
+      "name": "sslclient",
+      "type": "OpenSSLClient",
+      "settings": {
+        "sni": "sub.mydomain.com",
+        "verify": true,
+        "alpn": "h2"
+      },
+      "next": "iran_outbound"
+    },
+    {
+      "name": "iran_outbound",
+      "type": "TcpConnector",
+      "settings": {
+        "nodelay": true,
+        "address": "sub.mydomain.com",
+        "port": 443
+      }
+    }
+  ]
 }
 ```
-
-
 
 ```json title="سرور ایران"
 {
-    "name": "config_reverse_tls_grpc_singleport_iran",
-    "nodes": [
-        {
-            "name": "inbound_users",
-            "type": "TcpListener",
-            "settings": {
-                "address": "0.0.0.0",
-                "port": 443,
-                "nodelay": true
-            },
-            "next": "bridge2"
-        },
-        {
-            "name": "bridge2",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge1"
-            }
-        },
-        {
-            "name": "bridge1",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge2"
-            }
-        },
-        {
-            "name": "reverse_server",
-            "type": "ReverseServer",
-            "settings": {},
-            "next": "bridge1"
-        },
-        {
-            "name": "grpc_server",
-            "type": "ProtoBufServer",
-            "settings": {},
-            "next": "reverse_server"
-        },
-        {
-            "name": "h2server",
-            "type": "Http2Server",
-            "settings": {},
-            "next": "grpc_server"
-        },
-        {
-            "name": "sslserver",
-            "type": "OpenSSLServer",
-            "settings": {
-                "cert-file": "fullchain.pem",
-                "key-file": "privkey.pem",
-                "alpns": [
-                    {
-                        "value": "h2",
-                        "next": "node->next"
-                    },
-                    {
-                        "value": "http/1.1",
-                        "next": "node->next"
-                    }
-                ],
-                "fallbackintencedelay": 0
-            },
-            "next": "h2server"
-        },
-        {
-            "name": "inbound_cloudflare",
-            "type": "TcpListener",
-            "settings": {
-                "address": "0.0.0.0",
-                "port": 443,
-                "nodelay": true,
-                "whitelist": [
-                    "173.245.48.0/20",
-                    "103.21.244.0/22",
-                    "103.22.200.0/22",
-                    "103.31.4.0/22",
-                    "141.101.64.0/18",
-                    "108.162.192.0/18",
-                    "190.93.240.0/20",
-                    "188.114.96.0/20",
-                    "197.234.240.0/22",
-                    "198.41.128.0/17",
-                    "162.158.0.0/15",
-                    "104.16.0.0/13",
-                    "104.24.0.0/14",
-                    "172.64.0.0/13",
-                    "131.0.72.0/22",
-                    "2400:cb00::/32",
-                    "2606:4700::/32",
-                    "2803:f800::/32",
-                    "2405:b500::/32",
-                    "2405:8100::/32",
-                    "2a06:98c0::/29",
-                    "2c0f:f248::/32"
-                ]
-            },
-            "next": "sslserver"
-        }
-    ]
+  "name": "config_reverse_tls_grpc_singleport_iran",
+  "nodes": [
+    {
+      "name": "inbound_users",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true
+      },
+      "next": "bridge2"
+    },
+    {
+      "name": "bridge2",
+      "type": "Bridge",
+      "settings": {
+        "pair": "bridge1"
+      }
+    },
+    {
+      "name": "bridge1",
+      "type": "Bridge",
+      "settings": {
+        "pair": "bridge2"
+      }
+    },
+    {
+      "name": "reverse_server",
+      "type": "ReverseServer",
+      "settings": {},
+      "next": "bridge1"
+    },
+    {
+      "name": "grpc_server",
+      "type": "ProtoBufServer",
+      "settings": {},
+      "next": "reverse_server"
+    },
+    {
+      "name": "h2server",
+      "type": "Http2Server",
+      "settings": {},
+      "next": "grpc_server"
+    },
+    {
+      "name": "sslserver",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "fullchain.pem",
+        "key-file": "privkey.pem",
+        "alpns": [
+          {
+            "value": "h2",
+            "next": "node->next"
+          },
+          {
+            "value": "http/1.1",
+            "next": "node->next"
+          }
+        ],
+        "fallbackintencedelay": 0
+      },
+      "next": "h2server"
+    },
+    {
+      "name": "inbound_cloudflare",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true,
+        "whitelist": [
+          // فهرست IP های Cloudflare
+        ]
+      },
+      "next": "sslserver"
+    }
+  ]
 }
 ```
 
-### مثال چندپورت: تونل معکوس TLS gRPC چندپورت
-همین کار را می‌توانیم با چندین پورت نیز انجام دهیم و کاربر به هر پورتی که به سرور ایران متصل شود، به همان پورت در سرور خارجی وصل خواهد شد.
+## مثال چندپورت: تونل معکوس TLS gRPC چندپورت
 
-
+این کانفیگ امکان تونل کردن چندین پورت را فراهم می‌کند. کاربر به هر پورتی که به سرور ایران متصل شود، به همان پورت در سرور خارجی وصل خواهد شد.
 
 ```json title="سرور خارج"
 {
-    "name": "config_reverse_tls_grpc_multiport_kharej",
-    "nodes": [
-        {
-            "name": "core_outbound",
-            "type": "TcpConnector",
-            "settings": {
-                "nodelay": true,
-                "address": "127.0.0.1",
-                "port": "dest_context->port"
-            }
-        },
-        {
-            "name": "port_header",
-            "type": "HeaderServer",
-            "settings": {
-                "override": "dest_context->port"
-            },
-            "next": "core_outbound"
-        },
-        {
-            "name": "bridge1",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge2"
-            },
-            "next": "port_header"
-        },
-        {
-            "name": "bridge2",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge1"
-            },
-            "next": "reverse_client"
-        },
-        {
-            "name": "reverse_client",
-            "type": "ReverseClient",
-            "settings": {
-            },
-            "next": "grpc_client"
-        },
-        {
-            "name": "grpc_client",
-            "type": "ProtoBufClient",
-            "settings": {},
-            "next": "h2client"
-        },
-        {
-            "name": "h2client",
-            "type": "Http2Client",
-            "settings": {
-                "host": "sub.mydomain.com",
-                "port": 443,
-                "path": "/service",
-                "content-type": "application/grpc"
-            },
-            "next": "sslclient"
-        },
-        {
-            "name": "sslclient",
-            "type": "OpenSSLClient",
-            "settings": {
-                "sni": "sub.mydomain.com",
-                "verify": true,
-                "alpn": "h2"
-            },
-            "next": "iran_outbound"
-        },
-        {
-            "name": "iran_outbound",
-            "type": "TcpConnector",
-            "settings": {
-                "nodelay": true,
-                "address": "sub.mydomain.com",
-                "port": 443
-            }
-        }
-    ]
+  "name": "config_reverse_tls_grpc_multiport_kharej",
+  "nodes": [
+    {
+      "name": "core_outbound",
+      "type": "TcpConnector",
+      "settings": {
+        "nodelay": true,
+        "address": "127.0.0.1",
+        "port": "dest_context->port"
+      }
+    },
+    {
+      "name": "port_header",
+      "type": "HeaderServer",
+      "settings": {
+        "override": "dest_context->port"
+      },
+      "next": "core_outbound"
+    },
+    {
+      "name": "bridge1",
+      "type": "Bridge",
+      "settings": {
+        "pair": "bridge2"
+      },
+      "next": "port_header"
+    }
+    // سایر گره‌ها مشابه قبل
+  ]
 }
 ```
 
-
 ```json title="سرور ایران"
 {
-    "name": "config_reverse_tls_grpc_multiport_iran",
-    "nodes": [
-        {
-            "name": "inbound_users",
-            "type": "TcpListener",
-            "settings": {
-                "address": "0.0.0.0",
-                "port": [23,65535],
-                "nodelay": true
-            },
-            "next": "port_header"
-        },
-        {
-            "name": "port_header",
-            "type": "HeaderClient",
-            "settings": {
-                "data": "src_context->port"
-            },
-            "next": "bridge2"
-        },
-        {
-            "name": "bridge2",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge1"
-            }
-        },
-        {
-            "name": "bridge1",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge2"
-            }
-        },
-        {
-            "name": "reverse_server",
-            "type": "ReverseServer",
-            "settings": {},
-            "next": "bridge1"
-        },
-        {
-            "name": "grpc_server",
-            "type": "ProtoBufServer",
-            "settings": {},
-            "next": "reverse_server"
-        },
-        {
-            "name": "h2server",
-            "type": "Http2Server",
-            "settings": {},
-            "next": "grpc_server"
-        },
-        {
-            "name": "sslserver",
-            "type": "OpenSSLServer",
-            "settings": {
-                "cert-file": "fullchain.pem",
-                "key-file": "privkey.pem",
-                "alpns": [
-                    {
-                        "value": "h2",
-                        "next": "node->next"
-                    },
-                    {
-                        "value": "http/1.1",
-                        "next": "node->next"
-                    }
-                ],
-                "fallbackintencedelay": 0
-            },
-            "next": "h2server"
-        },
-        {
-            "name": "inbound_cloudflare",
-            "type": "TcpListener",
-            "settings": {
-                "address": "0.0.0.0",
-                "port": 443,
-                "nodelay": true,
-                "whitelist": [
-                    "173.245.48.0/20",
-                    "103.21.244.0/22",
-                    "103.22.200.0/22",
-                    "103.31.4.0/22",
-                    "141.101.64.0/18",
-                    "108.162.192.0/18",
-                    "190.93.240.0/20",
-                    "188.114.96.0/20",
-                    "197.234.240.0/22",
-                    "198.41.128.0/17",
-                    "162.158.0.0/15",
-                    "104.16.0.0/13",
-                    "104.24.0.0/14",
-                    "172.64.0.0/13",
-                    "131.0.72.0/22",
-                    "2400:cb00::/32",
-                    "2606:4700::/32",
-                    "2803:f800::/32",
-                    "2405:b500::/32",
-                    "2405:8100::/32",
-                    "2a06:98c0::/29",
-                    "2c0f:f248::/32"
-                ]
-            },
-            "next": "sslserver"
-        }
-    ]
+  "name": "config_reverse_tls_grpc_multiport_iran",
+  "nodes": [
+    {
+      "name": "inbound_users",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": [23, 65535],
+        "nodelay": true
+      },
+      "next": "port_header"
+    },
+    {
+      "name": "port_header",
+      "type": "HeaderClient",
+      "settings": {
+        "data": "src_context->port"
+      },
+      "next": "bridge2"
+    }
+    // سایر گره‌ها مشابه قبل
+  ]
 }
 ```
 
 ## مثال ترکیب با HalfDuplex
-من با روش‌های بالا تست کردم و مشکل پینگ یا نوسان ندیدم و همه چیز عالی بود. اما بازم خیلی خوب است که این ترکیب انجام شود.
 
+این کانفیگ تونل معکوس را با پروتکل HalfDuplex ترکیب می‌کند تا مشکلات پینگ یا نوسان را کاهش دهد.
 
-
-```json title="سرور خارج"
-{
-    "name": "config_reverse_tls_grpc_multiport_hd_kharej",
-    "nodes": [
-        {
-            "name": "core_outbound",
-            "type": "TcpConnector",
-            "settings": {
-                "nodelay": true,
-                "address": "127.0.0.1",
-                "port": 443
-            }
-        },
-        {
-            "name": "port_header",
-            "type": "HeaderServer",
-            "settings": {
-                "override": "dest_context->port"
-            },
-            "next": "core_outbound"
-        },
-        {
-            "name": "bridge1",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge2"
-            },
-            "next": "port_header"
-        },
-        {
-            "name": "bridge2",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge1"
-            },
-            "next": "reverse_client"
-        },
-        {
-            "name": "reverse_client",
-            "type": "ReverseClient",
-            "settings": {
-            },
-            "next": "halfc"
-        },
-        {
-            "name": "halfc",
-            "type": "HalfDuplexClient",
-            "settings": {},
-            "next": "grpc_client"
-        },
-        {
-            "name": "grpc_client",
-            "type": "ProtoBufClient",
-            "settings": {},
-            "next": "h2client"
-        },
-        {
-            "name": "h2client",
-            "type": "Http2Client",
-            "settings": {
-                "host": "sub.mydomain.com",
-                "port": 443,
-                "path": "/service",
-                "content-type": "application/grpc"
-            },
-            "next": "sslclient"
-        },
-        {
-            "name": "sslclient",
-            "type": "OpenSSLClient",
-            "settings": {
-                "sni": "sub.mydomain.com",
-                "verify": true,
-                "alpn": "h2"
-            },
-            "next": "iran_outbound"
-        },
-        {
-            "name": "iran_outbound",
-            "type": "TcpConnector",
-            "settings": {
-                "nodelay": true,
-                "address": "sub.mydomain.com",
-                "port": 443
-            }
-        }
-    ]
-}
-```
-
-
-
-```json title="سرور ایران"
-{
-    "name": "config_reverse_tls_grpc_multiport_hd_iran",
-    "nodes": [
-        {
-            "name": "inbound_users",
-            "type": "TcpListener",
-            "settings": {
-                "address": "0.0.0.0",
-                "port": [23,65535],
-                "nodelay": true
-            },
-            "next": "port_header"
-        },
-        {
-            "name": "port_header",
-            "type": "HeaderClient",
-            "settings": {
-                "data": "src_context->port"
-            },
-            "next": "bridge2"
-        },
-        {
-            "name": "bridge2",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge1"
-            }
-        },
-        {
-            "name": "bridge1",
-            "type": "Bridge",
-            "settings": {
-                "pair": "bridge2"
-            }
-        },
-        {
-            "name": "reverse_server",
-            "type": "ReverseServer",
-            "settings": {},
-            "next": "bridge1"
-        },
-        {
-            "name": "halfs",
-            "type": "HalfDuplexServer",
-            "settings": {},
-            "next": "reverse_server"
-        },
-        {
-            "name": "grpc_server",
-            "type": "ProtoBufServer",
-            "settings": {},
-            "next": "halfs"
-        },
-        {
-            "name": "h2server",
-            "type": "Http2Server",
-            "settings": {},
-            "next": "grpc_server"
-        },
-        {
-            "name": "sslserver",
-            "type": "OpenSSLServer",
-            "settings": {
-                "cert-file": "fullchain.pem",
-                "key-file": "privkey.pem",
-                "alpns": [
-                    {
-                        "value": "h2",
-                        "next": "node->next"
-                    },
-                    {
-                        "value": "http/1.1",
-                        "next": "node->next"
-                    }
-                ],
-                "fallbackintencedelay": 0
-            },
-            "next": "h2server"
-        },
-        {
-            "name": "inbound_cloudflare",
-            "type": "TcpListener",
-            "settings": {
-                "address": "0.0.0.0",
-                "port": 443,
-                "nodelay": true,
-                "whitelist": [
-                    "173.245.48.0/20",
-                    "103.21.244.0/22",
-                    "103.22.200.0/22",
-                    "103.31.4.0/22",
-                    "141.101.64.0/18",
-                    "108.162.192.0/18",
-                    "190.93.240.0/20",
-                    "188.114.96.0/20",
-                    "197.234.240.0/22",
-                    "198.41.128.0/17",
-                    "162.158.0.0/15",
-                    "104.16.0.0/13",
-                    "104.24.0.0/14",
-                    "172.64.0.0/13",
-                    "131.0.72.0/22",
-                    "2400:cb00::/32",
-                    "2606:4700::/32",
-                    "2803:f800::/32",
-                    "2405:b500::/32",
-                    "2405:8100::/32",
-                    "2a06:98c0::/29",
-                    "2c0f:f248::/32"
-                ]
-            },
-            "next": "sslserver"
-        }
-    ]
-}
-```
-
-:::info
-ترکیب این روش با HalfDuplex شاید مشکلاتی داشته باشد. دقیقاً نمی‌دانم، اما بیشتر این روش را برای تونل معکوس عادی آزمایش کرده‌ام.
-
-اما در به‌روزرسانی‌های بعدی، مشکلات این روش برطرف خواهند شد.
+:::warning
+ترکیب با HalfDuplex ممکن است مشکلاتی داشته باشد و بیشتر برای تونل معکوس عادی آزمایش شده است. در به‌روزرسانی‌های آینده، مشکلات احتمالی برطرف خواهند شد.
 :::
+
+```json title="تغییرات در کانفیگ سرور خارج"
+"nodes": [
+  // گره‌های قبلی
+  {
+    "name": "reverse_client",
+    "type": "ReverseClient",
+    "settings": {},
+    "next": "halfc"
+  },
+  {
+    "name": "halfc",
+    "type": "HalfDuplexClient",
+    "settings": {},
+    "next": "grpc_client"
+  },
+  // سایر گره‌ها
+]
+```
+
+```json title="تغییرات در کانفیگ سرور ایران"
+"nodes": [
+  // گره‌های قبلی
+  {
+    "name": "reverse_server",
+    "type": "ReverseServer",
+    "settings": {},
+    "next": "bridge1"
+  },
+  {
+    "name": "halfs",
+    "type": "HalfDuplexServer",
+    "settings": {},
+    "next": "reverse_server"
+  },
+  {
+    "name": "grpc_server",
+    "type": "ProtoBufServer",
+    "settings": {},
+    "next": "halfs"
+  },
+  // سایر گره‌ها
+]
+```
+
+#### دانشنامه
+
+- Cloudflare: یک شرکت ارائه‌دهنده خدمات شبکه تحویل محتوا (CDN) و امنیت وب که از آی‌پی‌های تمیز و قانونی برخوردار است.
+- gRPC: یک فریمورک متن‌باز که امکان ارتباطات کارآمد و سبک بین سرویس‌ها را فراهم می‌کند.
+- گواهینامه امنیتی (Certificate): یک فایل دیجیتال که هویت و مالکیت یک وب‌سایت را تأیید می‌کند و برای برقراری اتصالات امن HTTPS استفاده می‌شود.
+- Certbot: یک ابزار خط فرمان برای دریافت و نصب خودکار گواهینامه‌های SSL/TLS از Let's Encrypt.
+- HalfDuplex: یک پروتکل ارتباطی که انتقال داده‌ها را در هر زمان فقط در یک جهت امکان‌پذیر می‌کند، اما جهت انتقال قابل تغییر است.
