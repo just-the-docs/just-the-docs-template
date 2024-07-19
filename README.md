@@ -1,6 +1,5 @@
 # WaterWall Documentation
 
-
 docs are hosted there, read here:
 
 
