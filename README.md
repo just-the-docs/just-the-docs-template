@@ -135,7 +135,7 @@ The GitHub Actions workflow that builds and deploys your site to Github Pages is
 
     ```yaml
     - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: docs/_site/
     ```
