@@ -125,7 +125,7 @@ The GitHub Actions workflow that builds and deploys your site to Github Pages is
     - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
+          ruby-version: '3.3'
           bundler-cache: true
           cache-version: 0
           working-directory: '${{ github.workspace }}/docs'
@@ -135,9 +135,9 @@ The GitHub Actions workflow that builds and deploys your site to Github Pages is
 
     ```yaml
     - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: "docs/_site/"
+          path: docs/_site/
     ```
 
 4.  Modify the trigger so that only changes within the `docs` directory start the workflow. Otherwise, every change to your project (even those that don't affect the docs) would trigger a new site build and deploy.
