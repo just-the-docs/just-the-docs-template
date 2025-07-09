@@ -1,0 +1,79 @@
+# RawSocket
+
+گره **RawSocket** یک دستگاه سطح پایین برای capture و injection بسته‌های شبکه است. این گره قابلیت دسترسی مستقیم به بسته‌های شبکه در سطح raw socket را فراهم می‌کند.
+
+## عملکرد
+
+- **Packet Capture**: ضبط بسته‌های شبکه از دستگاه capture
+- **Packet Injection**: تزریق بسته‌ها مستقیماً به interface شبکه
+- **Packet Filtering**: فیلتر کردن بسته‌ها بر اساس آدرس IP
+- **Real-time Processing**: پردازش بلادرنگ بسته‌های شبکه
+
+## پارامترهای پیکربندی
+
+```json
+{
+  "name": "raw_socket",
+  "type": "RawSocket",
+  "settings": {
+    "capture-device-name": "eth0",
+    "raw-device-name": "eth0",
+    "capture-filter-mode": "source-ip",
+    "capture-ip": "192.168.1.100",
+    "mark": 1
+  }
+}
+```
+
+- **`capture-device-name`** (string): نام دستگاه capture
+  - پیش‌فرض: `"unnamed-capture-device"`
+- **`raw-device-name`** (string): نام دستگاه raw برای injection
+  - پیش‌فرض: `"unnamed-raw-device"`
+- **`capture-filter-mode`** (string): نوع فیلتر - `"source-ip"` یا `"dest-ip"`
+- **`capture-ip`** (string): آدرس IP برای فیلتر
+- **`mark`** (integer): علامت فایروال
+  - پیش‌فرض: `0`
+
+## نمونه‌های کاربردی
+
+### 1. نظارت ترافیک
+```json
+{
+  "name": "traffic_monitor",
+  "type": "RawSocket",
+  "settings": {
+    "capture-device-name": "eth0",
+    "raw-device-name": "eth0",
+    "capture-filter-mode": "source-ip",
+    "capture-ip": "192.168.1.0/24"
+  }
+}
+```
+
+### 2. Packet Injection
+```json
+{
+  "name": "packet_injector",
+  "type": "RawSocket",
+  "settings": {
+    "capture-device-name": "wlan0",
+    "raw-device-name": "wlan0",
+    "capture-filter-mode": "dest-ip",
+    "capture-ip": "10.0.0.1",
+    "mark": 2
+  }
+}
+```
+
+## نکات مهم
+
+- نیاز به دسترسی root در Linux
+- مخصوص Linux platform
+- برای سناریوهای high-throughput مناسب است
+- پشتیبانی از checksum recalculation
+
+## واژه‌نامه
+
+- **Raw Socket**: سوکت سطح پایین
+- **Packet Capture**: ضبط بسته‌های شبکه
+- **Packet Injection**: تزریق بسته به شبکه

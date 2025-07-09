@@ -1,0 +1,82 @@
+# IpManipulator
+
+گره **IpManipulator** برای دستکاری header های IP و تغییر پروتکل‌های شبکه استفاده می‌شود.
+
+## عملکرد
+
+- **Protocol Manipulation**: تغییر پروتکل‌های IP (TCP, UDP, ICMP, etc.)
+- **Header Modification**: اصلاح header های IP
+- **Traffic Shaping**: شکل‌دهی ترافیک شبکه
+
+## پروتکل‌های پشتیبانی شده
+
+```
+| Protocol | Number | Description                    |
+|----------|--------|--------------------------------|
+| ICMP     | 1      | Internet Control Message       |
+| TCP      | 6      | Transmission Control Protocol  |
+| UDP      | 17     | User Datagram Protocol         |
+| GRE      | 47     | Generic Routing Encapsulation  |
+| ESP      | 50     | Encapsulating Security Payload |
+| IPv6     | 41     | IPv6 encapsulation             |
+| OSPF     | 89     | Open Shortest Path First       |
+| SCTP     | 132    | Stream Control Transmission    |
+```
+
+## پیکربندی
+
+```json
+{
+  "name": "ip_manipulator",
+  "type": "IpManipulator",
+  "settings": {
+    "manip-swap-tcp": true
+  }
+}
+```
+
+- **`manip-swap-tcp`** (boolean): تعویض پروتکل TCP
+
+## نمونه کاربرد
+
+### 1. Protocol Conversion
+```json
+{
+  "name": "tcp_to_udp",
+  "type": "IpManipulator",
+  "settings": {
+    "manip-swap-tcp": true
+  },
+  "next": "udp_handler"
+}
+```
+
+### 2. Traffic Obfuscation
+```json
+{
+  "name": "traffic_obfuscator",
+  "type": "IpManipulator",
+  "settings": {
+    "manip-swap-tcp": false
+  },
+  "next": "tunnel_handler"
+}
+```
+
+## ویژگی‌ها
+
+- **Protocol Swapping**: تعویض پروتکل‌های مختلف
+- **Header Rewriting**: بازنویسی header های IP
+- **Checksum Recalculation**: محاسبه مجدد checksum
+
+## نکات مهم
+
+- برای obfuscation و traffic shaping مفید است
+- نیاز به دانش پروتکل‌های شبکه دارد
+- ممکن است عملکرد شبکه را تحت تأثیر قرار دهد
+
+## واژه‌نامه
+
+- **Protocol Manipulation**: دستکاری پروتکل
+- **Header Modification**: اصلاح header
+- **Traffic Shaping**: شکل‌دهی ترافیک

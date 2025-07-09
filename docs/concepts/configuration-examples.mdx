@@ -1,0 +1,750 @@
+# Configuration Examples
+
+نمونه‌های پیکربندی WaterWall از ساده تا پیشرفته.
+
+## مقدماتی (Simple)
+
+### 1. Port Forwarding ساده
+```json
+{
+  "name": "simple_port_forward",
+  "author": "WaterWall Team",
+  "config-version": 1,
+  "core-minimum-version": 1,
+  "nodes": [
+    {
+      "name": "listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8080
+      },
+      "next": "connector"
+    },
+    {
+      "name": "connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "httpforever.com",
+        "port": 80
+      }
+    }
+  ]
+}
+```
+
+### 2. HTTP به HTTPS Bridge
+```json
+{
+  "name": "http_to_https_bridge",
+  "nodes": [
+    {
+      "name": "http_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 80
+      },
+      "next": "https_connector"
+    },
+    {
+      "name": "https_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "httpforever.com",
+        "port": 443
+      }
+    }
+  ]
+}
+```
+
+### 3. UDP Echo Server
+```json
+{
+  "name": "udp_echo_server",
+  "nodes": [
+    {
+      "name": "udp_listener",
+      "type": "UdpStatelessSocket",
+      "settings": {
+        "listen-address": "0.0.0.0",
+        "listen-port": 5353
+      }
+    }
+  ]
+}
+```
+
+## متوسط (Medium)
+
+### 1. TLS Termination Proxy
+```json
+{
+  "name": "tls_termination_proxy",
+  "nodes": [
+    {
+      "name": "tls_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true
+      },
+      "next": "tls_server"
+    },
+    {
+      "name": "tls_server",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/etc/ssl/certs/server.crt",
+        "key-file": "/etc/ssl/private/server.key",
+        "protocols": ["TLSv1.3", "TLSv1.2"],
+        "verify-cert": false
+      },
+      "next": "http_connector"
+    },
+    {
+      "name": "http_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "127.0.0.1",
+        "port": 8080,
+        "nodelay": true
+      }
+    }
+  ]
+}
+```
+
+### 2. Load Balancer
+```json
+{
+  "name": "load_balancer",
+  "nodes": [
+    {
+      "name": "main_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 80,
+        "balance-group": "backend_servers",
+        "balance-interval": 100
+      },
+      "next": "backend_1"
+    },
+    {
+      "name": "backup_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8080,
+        "balance-group": "backend_servers",
+        "balance-interval": 100
+      },
+      "next": "backend_2"
+    },
+    {
+      "name": "backend_1",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "192.168.1.10",
+        "port": 80,
+        "nodelay": true
+      }
+    },
+    {
+      "name": "backend_2",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "192.168.1.11",
+        "port": 80,
+        "nodelay": true
+      }
+    }
+  ]
+}
+```
+
+### 3. WireGuard VPN Server
+```json
+{
+  "name": "wireguard_vpn_server",
+  "nodes": [
+    {
+      "name": "tun_interface",
+      "type": "TunDevice",
+      "settings": {
+        "device-name": "wg0",
+        "device-ip": "10.0.0.1/24"
+      },
+      "next": "wireguard_server"
+    },
+    {
+      "name": "wireguard_server",
+      "type": "WireGuardDevice",
+      "settings": {
+        "privatekey": "SERVER_PRIVATE_KEY_BASE64",
+        "peers": [
+          {
+            "publickey": "CLIENT_PUBLIC_KEY_BASE64",
+            "allowedips": "10.0.0.2/32",
+            "persistentkeepalive": 25
+          }
+        ]
+      },
+      "next": "udp_socket"
+    },
+    {
+      "name": "udp_socket",
+      "type": "UdpStatelessSocket",
+      "settings": {
+        "listen-address": "0.0.0.0",
+        "listen-port": 51820
+      }
+    }
+  ]
+}
+```
+
+### 4. Secure HTTP/2 Proxy
+```json
+{
+  "name": "http2_secure_proxy",
+  "nodes": [
+    {
+      "name": "https_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true
+      },
+      "next": "tls_handler"
+    },
+    {
+      "name": "tls_handler",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/etc/ssl/certs/server.crt",
+        "key-file": "/etc/ssl/private/server.key",
+        "protocols": ["TLSv1.3"],
+        "alpn": ["h2", "http/1.1"]
+      },
+      "next": "http2_handler"
+    },
+    {
+      "name": "http2_handler",
+      "type": "Http2Server",
+      "settings": {
+        "initial-window-size": 65536,
+        "max-frame-size": 16384
+      },
+      "next": "backend_connector"
+    },
+    {
+      "name": "backend_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "backend.local",
+        "port": 8080,
+        "nodelay": true
+      }
+    }
+  ]
+}
+```
+
+## پیشرفته (Advanced)
+
+### 1. Multi-layered Security Tunnel
+```json
+{
+  "name": "multi_layered_security_tunnel",
+  "nodes": [
+    {
+      "name": "external_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "whitelist": ["trusted-networks"],
+        "nodelay": true
+      },
+      "next": "outer_tls"
+    },
+    {
+      "name": "outer_tls",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/etc/ssl/outer/server.crt",
+        "key-file": "/etc/ssl/outer/server.key",
+        "protocols": ["TLSv1.3"],
+        "cipher-suites": ["TLS_AES_256_GCM_SHA384"],
+        "verify-cert": false
+      },
+      "next": "reality_layer"
+    },
+    {
+      "name": "reality_layer",
+      "type": "RealityServer",
+      "settings": {
+        "dest": "cloudflare.com:443",
+        "server-names": ["example.com"],
+        "private-key": "REALITY_PRIVATE_KEY_BASE64",
+        "short-ids": ["SHORT_ID_1", "SHORT_ID_2"]
+      },
+      "next": "inner_tls"
+    },
+    {
+      "name": "inner_tls",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/etc/ssl/inner/server.crt",
+        "key-file": "/etc/ssl/inner/server.key",
+        "protocols": ["TLSv1.3"],
+        "require-client-cert": true,
+        "ca-file": "/etc/ssl/inner/ca.crt"
+      },
+      "next": "final_connector"
+    },
+    {
+      "name": "final_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "internal.secure.local",
+        "port": 8443,
+        "nodelay": true
+      }
+    }
+  ]
+}
+```
+
+### 2. High-Performance CDN Edge
+```json
+{
+  "name": "cdn_edge_server",
+  "nodes": [
+    {
+      "name": "http_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 80,
+        "nodelay": true,
+        "balance-group": "edge_servers",
+        "balance-interval": 10
+      },
+      "next": "half_duplex_client"
+    },
+    {
+      "name": "https_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true,
+        "balance-group": "edge_servers",
+        "balance-interval": 10
+      },
+      "next": "tls_termination"
+    },
+    {
+      "name": "tls_termination",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/etc/ssl/cdn/server.crt",
+        "key-file": "/etc/ssl/cdn/server.key",
+        "protocols": ["TLSv1.3", "TLSv1.2"],
+        "session-cache": true,
+        "session-timeout": 3600
+      },
+      "next": "half_duplex_client"
+    },
+    {
+      "name": "half_duplex_client",
+      "type": "HalfDuplexClient",
+      "settings": {},
+      "next": "http2_multiplexer"
+    },
+    {
+      "name": "http2_multiplexer",
+      "type": "Http2Client",
+      "settings": {
+        "initial-window-size": 262144,
+        "max-frame-size": 32768,
+        "header-table-size": 8192
+      },
+      "next": "origin_connector"
+    },
+    {
+      "name": "origin_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "origin.cdn.local",
+        "port": 443,
+        "nodelay": true,
+        "fastopen": true
+      }
+    }
+  ]
+}
+```
+
+### 3. Network Virtualization Gateway
+```json
+{
+  "name": "network_virtualization_gateway",
+  "nodes": [
+    {
+      "name": "tun_interface",
+      "type": "TunDevice",
+      "settings": {
+        "device-name": "vnet0",
+        "device-ip": "172.16.0.1/16"
+      },
+      "next": "packet_processor"
+    },
+    {
+      "name": "packet_processor",
+      "type": "PacketToConnection",
+      "settings": {},
+      "next": "ip_manipulator"
+    },
+    {
+      "name": "ip_manipulator",
+      "type": "IpManipulator",
+      "settings": {
+        "manip-swap-tcp": true
+      },
+      "next": "ip_overrider"
+    },
+    {
+      "name": "ip_overrider",
+      "type": "IpOverrider",
+      "settings": {
+        "override-ip": "192.168.1.1",
+        "mode": "source",
+        "direction": "up"
+      },
+      "next": "raw_socket"
+    },
+    {
+      "name": "raw_socket",
+      "type": "RawSocket",
+      "settings": {
+        "capture-device-name": "eth0",
+        "raw-device-name": "eth0",
+        "capture-filter-mode": "dest-ip",
+        "capture-ip": "192.168.1.0/24",
+        "mark": 1
+      }
+    }
+  ]
+}
+```
+
+### 4. Enterprise Load Balancer
+```json
+{
+  "name": "enterprise_load_balancer",
+  "nodes": [
+    {
+      "name": "primary_listener_1",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true,
+        "balance-group": "primary_cluster",
+        "balance-interval": 5,
+        "whitelist": ["enterprise-networks"]
+      },
+      "next": "tls_offloader"
+    },
+    {
+      "name": "primary_listener_2",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8443,
+        "nodelay": true,
+        "balance-group": "primary_cluster",
+        "balance-interval": 5,
+        "whitelist": ["enterprise-networks"]
+      },
+      "next": "tls_offloader"
+    },
+    {
+      "name": "tls_offloader",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/etc/ssl/enterprise/server.crt",
+        "key-file": "/etc/ssl/enterprise/server.key",
+        "protocols": ["TLSv1.3"],
+        "cipher-suites": [
+          "TLS_AES_256_GCM_SHA384",
+          "TLS_CHACHA20_POLY1305_SHA256"
+        ],
+        "session-cache": true,
+        "session-timeout": 7200
+      },
+      "next": "backend_selector"
+    },
+    {
+      "name": "backend_selector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "backend-pool.enterprise.local",
+        "port": 8080,
+        "nodelay": true,
+        "fastopen": true,
+        "reuseaddr": true
+      }
+    }
+  ]
+}
+```
+
+## Core Configuration (core.json)
+
+### Development Environment
+```json
+{
+  "log": {
+    "path": "logs/",
+    "core": {
+      "loglevel": "DEBUG",
+      "file": "core.log",
+      "console": true
+    },
+    "network": {
+      "loglevel": "DEBUG",
+      "file": "network.log",
+      "console": true
+    },
+    "dns": {
+      "loglevel": "DEBUG",
+      "file": "dns.log",
+      "console": true
+    }
+  },
+  "misc": {
+    "workers": 2,
+    "ram-profile": "client",
+    "libs-path": "libs/"
+  },
+  "configs": ["simple_proxy.json"]
+}
+```
+
+### Production Environment
+```json
+{
+  "log": {
+    "path": "/var/log/waterwall/",
+    "core": {
+      "loglevel": "INFO",
+      "file": "core.log",
+      "console": false
+    },
+    "network": {
+      "loglevel": "WARN",
+      "file": "network.log",
+      "console": false
+    },
+    "dns": {
+      "loglevel": "ERROR",
+      "file": "dns.log",
+      "console": false
+    }
+  },
+  "misc": {
+    "workers": 0,
+    "ram-profile": "server",
+    "libs-path": "/usr/lib/waterwall/"
+  },
+  "configs": [
+    "load_balancer.json",
+    "cdn_edge.json",
+    "security_tunnel.json"
+  ]
+}
+```
+
+### High-Performance Environment
+```json
+{
+  "log": {
+    "path": "/var/log/waterwall/",
+    "core": {
+      "loglevel": "WARN",
+      "file": "core.log",
+      "console": false
+    },
+    "network": {
+      "loglevel": "ERROR",
+      "file": "network.log",
+      "console": false
+    },
+    "dns": {
+      "loglevel": "SILENT",
+      "file": "dns.log",
+      "console": false
+    }
+  },
+  "misc": {
+    "workers": 0,
+    "ram-profile": "server",
+    "libs-path": "/usr/lib/waterwall/"
+  },
+  "configs": ["high_performance.json"]
+}
+```
+
+## Use Case Scenarios
+
+### 1. میکروسرویس Gateway
+```json
+{
+  "name": "microservices_gateway",
+  "nodes": [
+    {
+      "name": "api_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true
+      },
+      "next": "tls_termination"
+    },
+    {
+      "name": "tls_termination",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/etc/ssl/api/server.crt",
+        "key-file": "/etc/ssl/api/server.key"
+      },
+      "next": "service_router"
+    },
+    {
+      "name": "service_router",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "dest_context->address",
+        "port": "dest_context->port",
+        "nodelay": true
+      }
+    }
+  ]
+}
+```
+
+### 2. IOT Device Gateway
+```json
+{
+  "name": "iot_gateway",
+  "nodes": [
+    {
+      "name": "mqtt_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8883,
+        "nodelay": true
+      },
+      "next": "mqtt_tls"
+    },
+    {
+      "name": "mqtt_tls",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/etc/ssl/iot/server.crt",
+        "key-file": "/etc/ssl/iot/server.key",
+        "require-client-cert": true,
+        "ca-file": "/etc/ssl/iot/ca.crt"
+      },
+      "next": "mqtt_broker"
+    },
+    {
+      "name": "mqtt_broker",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "mqtt.iot.local",
+        "port": 1883,
+        "nodelay": true
+      }
+    }
+  ]
+}
+```
+
+### 3. Gaming Server Proxy
+```json
+{
+  "name": "gaming_server_proxy",
+  "nodes": [
+    {
+      "name": "game_udp_listener",
+      "type": "UdpStatelessSocket",
+      "settings": {
+        "listen-address": "0.0.0.0",
+        "listen-port": 27015
+      }
+    },
+    {
+      "name": "game_tcp_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 27015,
+        "nodelay": true
+      },
+      "next": "game_server"
+    },
+    {
+      "name": "game_server",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "game.server.local",
+        "port": 27015,
+        "nodelay": true,
+        "fastopen": true
+      }
+    }
+  ]
+}
+```
+
+## نکات مهم
+
+### Configuration Best Practices
+1. **شروع ساده**: از پیکربندی‌های ساده شروع کنید
+2. **تست مرحله‌ای**: هر مرحله را جداگانه تست کنید
+3. **Logging مناسب**: سطح logging مناسب انتخاب کنید
+4. **Performance Tuning**: پارامترهای عملکردی را تنظیم کنید
+5. **Security First**: امنیت را اولویت قرار دهید
+
+### Common Patterns
+- **Chain Head**: TcpListener, TunDevice, UdpStatelessSocket
+- **Middle Nodes**: OpenSSLServer, Http2Server, RealityServer
+- **Chain Tail**: TcpConnector, UdpStatelessSocket
+
+### Error Prevention
+- همیشه JSON syntax را validate کنید
+- node names باید unique باشند
+- next references باید valid باشند
+- فایل‌های certificate موجود باشند
+
+## واژه‌نامه
+
+- **Chain**: زنجیره گره‌ها
+- **Node**: گره پردازش
+- **Upstream**: جریان به سمت سرور
+- **Downstream**: جریان به سمت کلاینت
+- **Balance Group**: گروه تعادل بار
+- **TLS Termination**: پایان رمزگذاری TLS
+- **Load Balancer**: متعادل‌کننده بار
+- **Gateway**: دروازه شبکه

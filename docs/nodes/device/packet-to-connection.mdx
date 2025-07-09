@@ -1,0 +1,66 @@
+# PacketToConnection
+
+گره **PacketToConnection** ارتباطات مبتنی بر packet را به جریان‌های مبتنی بر connection تبدیل می‌کند. این گره از TCP/IP stack lwIP استفاده می‌کند.
+
+## عملکرد
+
+- **Packet to Stream**: تبدیل IP packets به TCP/UDP connections
+- **Virtual Interfaces**: ایجاد interface های مجازی
+- **Protocol Conversion**: تبدیل پروتکل‌های TCP/UDP
+- **Connection Management**: مدیریت state اتصالات TCP
+
+## پیکربندی
+
+```json
+{
+  "name": "packet_converter",
+  "type": "PacketToConnection",
+  "settings": {}
+}
+```
+
+- **بدون پارامتر**: از پیکربندی داخلی lwIP استفاده می‌کند
+- **Dynamic Interface**: ایجاد خودکار interface ها
+- **Port Allocation**: تخصیص خودکار پورت‌ها
+
+## نمونه‌های کاربردی
+
+### 1. Protocol Bridge
+```json
+{
+  "name": "protocol_bridge",
+  "type": "PacketToConnection",
+  "settings": {},
+  "next": "tcp_handler"
+}
+```
+
+### 2. Network Adapter
+```json
+{
+  "name": "network_adapter",
+  "type": "PacketToConnection",
+  "settings": {},
+  "next": "connection_processor"
+}
+```
+
+## ویژگی‌ها
+
+- **Connection Caching**: کش اتصالات پرکاربrd
+- **Zero-copy Processing**: پردازش بدون کپی
+- **Memory Pooling**: مدیریت بهینه حافظه
+- **Thread-safe**: عملیات ایمن در محیط چند thread
+
+## نکات مهم
+
+- استفاده از lwIP برای cross-platform support
+- مناسب برای high connection counts
+- مدیریت خودکار TCP sessions
+- پشتیبانی از IPv4 و IPv6
+
+## واژه‌نامه
+
+- **lwIP**: Lightweight IP stack
+- **Connection State**: وضعیت اتصال
+- **Protocol Conversion**: تبدیل پروتکل

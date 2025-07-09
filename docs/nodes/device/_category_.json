@@ -1,0 +1,8 @@
+{
+  "label": "Device Nodes",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "گره‌های دستگاه - TUN، Raw Socket، Packet و سایر دستگاه‌های شبکه"
+  }
+}

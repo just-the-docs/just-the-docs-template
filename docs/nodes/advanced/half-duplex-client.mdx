@@ -1,0 +1,65 @@
+# HalfDuplexClient
+
+گره **HalfDuplexClient** یک اتصال دوطرفه را به دو اتصال مجزا تقسیم می‌کند: یکی برای upload و دیگری برای download.
+
+## عملکرد
+
+```
+con <------>  HalfDuplexClient  -----> upload con
+                                <----- download con
+```
+
+- **Connection Splitting**: تقسیم اتصال به دو کانال upload/download
+- **Bidirectional Management**: مدیریت جداگانه جهت‌های ارسال و دریافت
+- **Protocol Optimization**: بهینه‌سازی برای پروتکل‌های نامتقارن
+
+## پیکربندی
+
+```json
+{
+  "name": "half_duplex_client",
+  "type": "HalfDuplexClient",
+  "settings": {},
+  "next": "server_node"
+}
+```
+
+## نمونه کاربرد
+
+### 1. HTTP/2 Multiplexing
+```json
+{
+  "name": "http2_split",
+  "type": "HalfDuplexClient",
+  "settings": {},
+  "next": "http2_server"
+}
+```
+
+### 2. CDN Optimization
+```json
+{
+  "name": "cdn_split",
+  "type": "HalfDuplexClient",
+  "settings": {},
+  "next": "cdn_handler"
+}
+```
+
+## ویژگی‌ها
+
+- **Automatic Line Management**: مدیریت خودکار خطوط upload/download
+- **Protocol Commands**: استفاده از command های 127 (upload) و 128 (download)
+- **State Tracking**: نگهداری وضعیت اتصالات مجزا
+
+## نکات مهم
+
+- مناسب برای پروتکل‌های HTTP/2 و gRPC
+- بهبود عملکرد در شبکه‌های نامتقارن
+- کاهش تأخیر در ارتباطات دوطرفه
+
+## واژه‌نامه
+
+- **Half Duplex**: ارتباط تک‌جهته
+- **Upload Line**: خط ارسال داده
+- **Download Line**: خط دریافت داده

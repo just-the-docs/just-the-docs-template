@@ -1,0 +1,603 @@
+# Deployment Guide
+
+راهنمای کامل استقرار WaterWall در محیط‌های مختلف.
+
+## System Requirements
+
+### Hardware Requirements
+```
+┌─────────────────┬──────────────┬──────────────┬──────────────┐
+│ Component       │ Minimum      │ Recommended  │ High-Load    │
+├─────────────────┼──────────────┼──────────────┼──────────────┤
+│ CPU             │ 1 Core       │ 4 Cores      │ 8+ Cores     │
+│ RAM             │ 512 MB       │ 2 GB         │ 8+ GB        │
+│ Storage         │ 100 MB       │ 1 GB         │ 10+ GB       │
+│ Network         │ 10 Mbps      │ 100 Mbps     │ 1+ Gbps      │
+└─────────────────┴──────────────┴──────────────┴──────────────┘
+```
+
+### Software Requirements
+- **OS**: Linux, Windows, macOS
+- **Kernel**: Linux 3.10+, Windows 10+, macOS 10.14+
+- **Dependencies**: OpenSSL 1.1.1+, libsodium (optional)
+
+## Installation Methods
+
+### 1. Binary Installation (Recommended)
+
+#### Linux
+```bash
+# Download latest release
+wget https://github.com/radkesvat/WaterWall/releases/latest/download/waterwall-linux-amd64.tar.gz
+
+# Extract
+tar -xzf waterwall-linux-amd64.tar.gz
+
+# Install
+sudo cp waterwall /usr/local/bin/
+sudo chmod +x /usr/local/bin/waterwall
+
+# Create directories
+sudo mkdir -p /etc/waterwall
+sudo mkdir -p /var/log/waterwall
+sudo mkdir -p /var/lib/waterwall
+```
+
+#### Windows
+```powershell
+# Download from releases page
+# Extract to C:\Program Files\WaterWall\
+# Add to PATH environment variable
+
+# Create directories
+mkdir C:\ProgramData\WaterWall\config
+mkdir C:\ProgramData\WaterWall\logs
+```
+
+#### macOS
+```bash
+# Using Homebrew (if available)
+brew install waterwall
+
+# Or manual installation
+curl -L https://github.com/radkesvat/WaterWall/releases/latest/download/waterwall-darwin-amd64.tar.gz | tar -xz
+sudo cp waterwall /usr/local/bin/
+```
+
+### 2. Docker Installation
+
+#### Docker Compose
+```yaml
+version: '3.8'
+
+services:
+  waterwall:
+    image: radkesvat/waterwall:latest
+    container_name: waterwall
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./config:/etc/waterwall:ro
+      - ./logs:/var/log/waterwall
+      - ./ssl:/etc/ssl/waterwall:ro
+    command: ["/etc/waterwall/config.json"]
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    environment:
+      - WATERWALL_LOG_LEVEL=INFO
+```
+
+#### Dockerfile
+```dockerfile
+FROM debian:bullseye-slim
+
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY waterwall /usr/local/bin/
+RUN chmod +x /usr/local/bin/waterwall
+
+WORKDIR /etc/waterwall
+EXPOSE 443 80 8080
+
+CMD ["waterwall", "/etc/waterwall/config.json"]
+```
+
+### 3. Build from Source
+
+#### Prerequisites
+```bash
+# Install dependencies
+sudo apt-get update
+sudo apt-get install -y \
+    build-essential \
+    cmake \
+    libssl-dev \
+    libsodium-dev \
+    git
+```
+
+#### Build Process
+```bash
+# Clone repository
+git clone https://github.com/radkesvat/WaterWall.git
+cd WaterWall
+
+# Create build directory
+mkdir build && cd build
+
+# Configure
+cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DINCLUDE_OPENSSL_SERVER=ON \
+    -DINCLUDE_WIREGUARD_DEVICE=ON
+
+# Build
+make -j$(nproc)
+
+# Install
+sudo make install
+```
+
+## Configuration Setup
+
+### Directory Structure
+```
+/etc/waterwall/
+├── core.json              # Core configuration
+├── configs/
+│   ├── proxy.json         # Proxy configuration
+│   ├── vpn.json          # VPN configuration
+│   └── load_balancer.json # Load balancer configuration
+├── ssl/
+│   ├── server.crt        # TLS certificate
+│   ├── server.key        # TLS private key
+│   └── ca.crt           # CA certificate
+└── scripts/
+    ├── start.sh          # Start script
+    └── stop.sh           # Stop script
+```
+
+### Core Configuration
+```json
+{
+  "log": {
+    "path": "/var/log/waterwall/",
+    "core": {
+      "loglevel": "INFO",
+      "file": "core.log",
+      "console": false
+    },
+    "network": {
+      "loglevel": "WARN",
+      "file": "network.log",
+      "console": false
+    },
+    "dns": {
+      "loglevel": "ERROR",
+      "file": "dns.log",
+      "console": false
+    }
+  },
+  "misc": {
+    "workers": 0,
+    "ram-profile": "server",
+    "libs-path": "/usr/lib/waterwall/"
+  },
+  "configs": ["configs/proxy.json"]
+}
+```
+
+### SSL/TLS Setup
+```bash
+# Generate self-signed certificate
+openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 365 -nodes
+
+# Or use Let's Encrypt
+certbot certonly --standalone -d yourdomain.com
+cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem /etc/waterwall/ssl/server.crt
+cp /etc/letsencrypt/live/yourdomain.com/privkey.pem /etc/waterwall/ssl/server.key
+
+# Set permissions
+chmod 600 /etc/waterwall/ssl/server.key
+chmod 644 /etc/waterwall/ssl/server.crt
+chown waterwall:waterwall /etc/waterwall/ssl/*
+```
+
+## Service Management
+
+### systemd Service (Linux)
+```ini
+# /etc/systemd/system/waterwall.service
+[Unit]
+Description=WaterWall Tunneling Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=waterwall
+Group=waterwall
+ExecStart=/usr/local/bin/waterwall /etc/waterwall/core.json
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/waterwall /var/lib/waterwall
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_NET_ADMIN
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Service Management Commands
+```bash
+# Install and start service
+sudo systemctl daemon-reload
+sudo systemctl enable waterwall
+sudo systemctl start waterwall
+
+# Check status
+sudo systemctl status waterwall
+
+# View logs
+sudo journalctl -u waterwall -f
+
+# Restart service
+sudo systemctl restart waterwall
+```
+
+### Windows Service
+```powershell
+# Create Windows service using NSSM
+nssm install WaterWall "C:\Program Files\WaterWall\waterwall.exe"
+nssm set WaterWall Arguments "C:\ProgramData\WaterWall\config\core.json"
+nssm set WaterWall Start SERVICE_AUTO_START
+nssm set WaterWall Description "WaterWall Tunneling Service"
+
+# Start service
+nssm start WaterWall
+```
+
+### macOS launchd
+```xml
+<!-- /Library/LaunchDaemons/com.waterwall.plist -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.waterwall</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/waterwall</string>
+        <string>/etc/waterwall/core.json</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardErrorPath</key>
+    <string>/var/log/waterwall/error.log</string>
+    <key>StandardOutPath</key>
+    <string>/var/log/waterwall/output.log</string>
+</dict>
+</plist>
+```
+
+## Security Hardening
+
+### User and Permissions
+```bash
+# Create dedicated user
+sudo useradd -r -s /bin/false -d /var/lib/waterwall waterwall
+
+# Set ownership
+sudo chown -R waterwall:waterwall /etc/waterwall
+sudo chown -R waterwall:waterwall /var/log/waterwall
+sudo chown -R waterwall:waterwall /var/lib/waterwall
+
+# Set permissions
+sudo chmod 750 /etc/waterwall
+sudo chmod 640 /etc/waterwall/*.json
+sudo chmod 600 /etc/waterwall/ssl/*.key
+sudo chmod 644 /etc/waterwall/ssl/*.crt
+```
+
+### Firewall Configuration
+```bash
+# UFW (Ubuntu/Debian)
+sudo ufw allow 443/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 51820/udp  # WireGuard
+sudo ufw enable
+
+# firewalld (CentOS/RHEL)
+sudo firewall-cmd --permanent --add-port=443/tcp
+sudo firewall-cmd --permanent --add-port=80/tcp
+sudo firewall-cmd --permanent --add-port=51820/udp
+sudo firewall-cmd --reload
+
+# iptables
+sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+sudo iptables -A INPUT -p udp --dport 51820 -j ACCEPT
+```
+
+### SELinux Configuration
+```bash
+# Create SELinux policy
+sudo setsebool -P httpd_can_network_connect 1
+sudo restorecon -R /etc/waterwall
+sudo restorecon -R /var/log/waterwall
+```
+
+## High Availability Setup
+
+### Load Balancer Configuration
+```json
+{
+  "name": "ha_load_balancer",
+  "nodes": [
+    {
+      "name": "primary_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "balance-group": "ha_cluster",
+        "balance-interval": 10
+      },
+      "next": "primary_backend"
+    },
+    {
+      "name": "secondary_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8443,
+        "balance-group": "ha_cluster",
+        "balance-interval": 10
+      },
+      "next": "secondary_backend"
+    }
+  ]
+}
+```
+
+### Health Checks
+```bash
+#!/bin/bash
+# /etc/waterwall/scripts/health_check.sh
+
+# Check if WaterWall is running
+if ! pgrep -x "waterwall" > /dev/null; then
+    echo "WaterWall is not running"
+    exit 1
+fi
+
+# Check if listening on required ports
+if ! netstat -tuln | grep -q ":443 "; then
+    echo "WaterWall is not listening on port 443"
+    exit 1
+fi
+
+# Check log for errors
+if tail -n 100 /var/log/waterwall/core.log | grep -q "ERROR"; then
+    echo "Errors found in logs"
+    exit 1
+fi
+
+echo "WaterWall is healthy"
+exit 0
+```
+
+## Monitoring and Logging
+
+### Log Rotation
+```bash
+# /etc/logrotate.d/waterwall
+/var/log/waterwall/*.log {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    missingok
+    notifempty
+    sharedscripts
+    postrotate
+        systemctl reload waterwall > /dev/null 2>&1 || true
+    endscript
+}
+```
+
+### Monitoring Script
+```bash
+#!/bin/bash
+# /etc/waterwall/scripts/monitor.sh
+
+LOG_FILE="/var/log/waterwall/monitor.log"
+DATE=$(date '+%Y-%m-%d %H:%M:%S')
+
+# Check process
+if pgrep -x "waterwall" > /dev/null; then
+    echo "[$DATE] WaterWall is running" >> $LOG_FILE
+else
+    echo "[$DATE] WaterWall is not running - attempting restart" >> $LOG_FILE
+    systemctl restart waterwall
+fi
+
+# Check memory usage
+MEM_USAGE=$(ps -o pid,ppid,cmd,%mem --sort=-%mem | grep waterwall | head -1 | awk '{print $4}')
+echo "[$DATE] Memory usage: $MEM_USAGE%" >> $LOG_FILE
+
+# Check connections
+CONNECTIONS=$(ss -tuln | grep waterwall | wc -l)
+echo "[$DATE] Active connections: $CONNECTIONS" >> $LOG_FILE
+```
+
+### Prometheus Integration
+```yaml
+# prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'waterwall'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+```
+
+## Performance Tuning
+
+### System Limits
+```bash
+# /etc/security/limits.conf
+waterwall soft nofile 65536
+waterwall hard nofile 65536
+waterwall soft nproc 32768
+waterwall hard nproc 32768
+
+# /etc/sysctl.d/99-waterwall.conf
+net.core.rmem_max = 33554432
+net.core.wmem_max = 33554432
+net.ipv4.tcp_rmem = 4096 16384 33554432
+net.ipv4.tcp_wmem = 4096 65536 33554432
+net.core.netdev_max_backlog = 5000
+net.ipv4.tcp_congestion_control = bbr
+```
+
+### CPU Affinity
+```bash
+# Pin to specific CPU cores
+echo 2-5 > /sys/fs/cgroup/cpuset/waterwall/cpuset.cpus
+echo 0 > /sys/fs/cgroup/cpuset/waterwall/cpuset.mems
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Port Already in Use
+```bash
+# Check what's using the port
+sudo netstat -tulpn | grep :443
+sudo lsof -i :443
+
+# Kill process if needed
+sudo kill -9 <PID>
+```
+
+#### Permission Denied
+```bash
+# Check file permissions
+ls -la /etc/waterwall/
+ls -la /var/log/waterwall/
+
+# Fix permissions
+sudo chown -R waterwall:waterwall /etc/waterwall
+sudo chmod 750 /etc/waterwall
+```
+
+#### SSL Certificate Issues
+```bash
+# Test certificate
+openssl x509 -in /etc/waterwall/ssl/server.crt -text -noout
+
+# Test connection
+openssl s_client -connect localhost:443 -servername yourdomain.com
+```
+
+### Debug Configuration
+```json
+{
+  "log": {
+    "core": {
+      "loglevel": "DEBUG",
+      "console": true
+    },
+    "network": {
+      "loglevel": "DEBUG",
+      "console": true
+    }
+  }
+}
+```
+
+## Backup and Recovery
+
+### Backup Script
+```bash
+#!/bin/bash
+# /etc/waterwall/scripts/backup.sh
+
+BACKUP_DIR="/backup/waterwall/$(date +%Y%m%d_%H%M%S)"
+mkdir -p $BACKUP_DIR
+
+# Backup configuration
+cp -r /etc/waterwall $BACKUP_DIR/
+cp -r /var/log/waterwall $BACKUP_DIR/
+
+# Create archive
+tar -czf $BACKUP_DIR.tar.gz $BACKUP_DIR
+rm -rf $BACKUP_DIR
+
+# Cleanup old backups (keep 30 days)
+find /backup/waterwall -name "*.tar.gz" -mtime +30 -delete
+```
+
+### Recovery Procedure
+```bash
+# Stop service
+sudo systemctl stop waterwall
+
+# Restore configuration
+sudo tar -xzf backup.tar.gz -C /
+sudo chown -R waterwall:waterwall /etc/waterwall
+
+# Start service
+sudo systemctl start waterwall
+```
+
+## نکات مهم
+
+### Pre-deployment Checklist
+- [ ] Hardware requirements met
+- [ ] OS and dependencies installed
+- [ ] Firewall configured
+- [ ] SSL certificates ready
+- [ ] User accounts created
+- [ ] Permissions set correctly
+- [ ] Service configuration tested
+- [ ] Monitoring setup
+- [ ] Backup strategy implemented
+
+### Post-deployment Verification
+- [ ] Service is running
+- [ ] Ports are listening
+- [ ] SSL certificates valid
+- [ ] Logs are clean
+- [ ] Performance metrics normal
+- [ ] Health checks passing
+
+## واژه‌نامه
+
+- **Deployment**: استقرار
+- **Service**: سرویس
+- **systemd**: مدیر سرویس لینوکس
+- **Load Balancer**: متعادل‌کننده بار
+- **Health Check**: بررسی سلامت
+- **Log Rotation**: چرخش لاگ
+- **CPU Affinity**: تخصیص CPU
+- **High Availability**: دسترسی بالا

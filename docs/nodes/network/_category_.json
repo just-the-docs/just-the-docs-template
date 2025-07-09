@@ -1,0 +1,8 @@
+{
+  "label": "Network Nodes",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "گره‌های شبکه - مدیریت ارتباطات TCP، UDP و سوکت‌ها"
+  }
+}

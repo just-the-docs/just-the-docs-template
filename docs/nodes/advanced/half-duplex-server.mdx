@@ -1,0 +1,65 @@
+# HalfDuplexServer
+
+گره **HalfDuplexServer** نقطه مقابل HalfDuplexClient است و دو اتصال مجزا upload/download را به یک اتصال دوطرفه تبدیل می‌کند.
+
+## عملکرد
+
+```
+upload con   -----> HalfDuplexServer <-----> con
+download con <-----
+```
+
+- **Connection Merging**: ادغام دو کانال upload/download
+- **Bidirectional Reconstruction**: بازسازی ارتباط دوطرفه
+- **Protocol Termination**: پایان دادن به پروتکل half-duplex
+
+## پیکربندی
+
+```json
+{
+  "name": "half_duplex_server",
+  "type": "HalfDuplexServer",
+  "settings": {},
+  "next": "destination_node"
+}
+```
+
+## نمونه کاربرد
+
+### 1. HTTP/2 Aggregation
+```json
+{
+  "name": "http2_merge",
+  "type": "HalfDuplexServer",
+  "settings": {},
+  "next": "http_handler"
+}
+```
+
+### 2. CDN Termination
+```json
+{
+  "name": "cdn_merge",
+  "type": "HalfDuplexServer",
+  "settings": {},
+  "next": "origin_server"
+}
+```
+
+## ویژگی‌ها
+
+- **Automatic Merging**: ادغام خودکار جریان‌های upload/download
+- **State Synchronization**: همگام‌سازی وضعیت اتصالات
+- **Protocol Reconstruction**: بازسازی پروتکل اصلی
+
+## نکات مهم
+
+- باید در زوج با HalfDuplexClient استفاده شود
+- مناسب برای CDN و load balancing
+- بهبود throughput در شبکه‌های پهن‌باند
+
+## واژه‌نامه
+
+- **Connection Merging**: ادغام اتصالات
+- **Protocol Termination**: پایان پروتکل
+- **State Synchronization**: همگام‌سازی وضعیت

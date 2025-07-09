@@ -1,0 +1,8 @@
+{
+  "label": "Protocol Nodes",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "گره‌های پروتکل - OpenSSL، HTTP2، Reality، Trojan و سایر پروتکل‌ها"
+  }
+}

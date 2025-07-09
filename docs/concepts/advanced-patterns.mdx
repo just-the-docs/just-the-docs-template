@@ -1,0 +1,323 @@
+# Advanced Configuration Patterns
+
+الگوهای پیشرفته پیکربندی WaterWall برای سناریوهای پیچیده.
+
+## Load Balancing Patterns
+
+### Round Robin Load Balancer
+```json
+{
+  "nodes": [
+    {
+      "name": "main_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "balance-group": "backend_servers"
+      },
+      "next": "ssl_handler"
+    },
+    {
+      "name": "ssl_handler",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/path/to/cert.pem",
+        "key-file": "/path/to/key.pem"
+      },
+      "next": "backend_connector"
+    },
+    {
+      "name": "backend_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "backend-pool.local",
+        "port": 8080
+      }
+    }
+  ]
+}
+```
+
+## High Availability Patterns
+
+### Multi-path Tunneling
+```json
+{
+  "nodes": [
+    {
+      "name": "primary_path",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "balance-group": "ha_group"
+      },
+      "next": "primary_tunnel"
+    },
+    {
+      "name": "backup_path",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8443,
+        "balance-group": "ha_group"
+      },
+      "next": "backup_tunnel"
+    }
+  ]
+}
+```
+
+## Security Patterns
+
+### Defense in Depth
+```json
+{
+  "nodes": [
+    {
+      "name": "external_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "whitelist": ["trusted-networks"]
+      },
+      "next": "reality_server"
+    },
+    {
+      "name": "reality_server",
+      "type": "RealityServer",
+      "settings": {
+        "dest": "fallback-website.com:443",
+        "server-names": ["example.com"],
+        "private-key": "PRIVATE_KEY",
+        "short-ids": ["SHORT_ID"]
+      },
+      "next": "inner_ssl"
+    },
+    {
+      "name": "inner_ssl",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/path/to/inner-cert.pem",
+        "key-file": "/path/to/inner-key.pem"
+      },
+      "next": "final_connector"
+    }
+  ]
+}
+```
+
+## Performance Patterns
+
+### Zero-Copy Optimization
+```json
+{
+  "nodes": [
+    {
+      "name": "optimized_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "nodelay": true,
+        "multiport-backend": "iptables"
+      },
+      "next": "direct_connector"
+    },
+    {
+      "name": "direct_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "dest_context->address",
+        "port": "dest_context->port",
+        "nodelay": true,
+        "fastopen": true
+      }
+    }
+  ]
+}
+```
+
+## Protocol Bridging
+
+### HTTP to HTTPS Bridge
+```json
+{
+  "nodes": [
+    {
+      "name": "http_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 80
+      },
+      "next": "ssl_client"
+    },
+    {
+      "name": "ssl_client",
+      "type": "OpenSSLClient",
+      "settings": {
+        "sni": "target-server.com",
+        "verify-cert": true
+      },
+      "next": "https_connector"
+    },
+    {
+      "name": "https_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "target-server.com",
+        "port": 443
+      }
+    }
+  ]
+}
+```
+
+## Network Virtualization
+
+### VPN Gateway
+```json
+{
+  "nodes": [
+    {
+      "name": "tun_interface",
+      "type": "TunDevice",
+      "settings": {
+        "device-name": "wg-tun",
+        "device-ip": "10.0.0.1/24"
+      },
+      "next": "wireguard_device"
+    },
+    {
+      "name": "wireguard_device",
+      "type": "WireGuardDevice",
+      "settings": {
+        "privatekey": "SERVER_PRIVATE_KEY",
+        "peers": [
+          {
+            "publickey": "CLIENT_PUBLIC_KEY",
+            "allowedips": "10.0.0.0/24"
+          }
+        ]
+      },
+      "next": "wan_connector"
+    },
+    {
+      "name": "wan_connector",
+      "type": "UdpStatelessSocket",
+      "settings": {
+        "listen-address": "0.0.0.0",
+        "listen-port": 51820
+      }
+    }
+  ]
+}
+```
+
+## Traffic Shaping
+
+### Bandwidth Control
+```json
+{
+  "nodes": [
+    {
+      "name": "shaped_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443,
+        "fwmark": 1
+      },
+      "next": "traffic_shaper"
+    },
+    {
+      "name": "traffic_shaper",
+      "type": "IpManipulator",
+      "settings": {
+        "manip-swap-tcp": false
+      },
+      "next": "marked_connector"
+    },
+    {
+      "name": "marked_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "backend.local",
+        "port": 8080,
+        "fwmark": 2
+      }
+    }
+  ]
+}
+```
+
+## Monitoring & Debugging
+
+### Comprehensive Logging
+```json
+{
+  "log": {
+    "path": "logs/",
+    "core": {
+      "loglevel": "INFO",
+      "file": "core.log",
+      "console": true
+    },
+    "network": {
+      "loglevel": "DEBUG",
+      "file": "network.log",
+      "console": false
+    },
+    "dns": {
+      "loglevel": "WARN",
+      "file": "dns.log",
+      "console": false
+    }
+  },
+  "misc": {
+    "workers": 4,
+    "ram-profile": "server"
+  }
+}
+```
+
+## Best Practices
+
+### 1. Node Ordering
+```
+Input → Security → Processing → Output
+```
+
+### 2. Resource Management
+- استفاده از balance groups برای load balancing
+- تنظیم مناسب worker threads
+- مدیریت حافظه با ram-profile
+
+### 3. Error Handling
+- پیکربندی fallback nodes
+- logging مناسب برای debugging
+- health check endpoints
+
+### 4. Security Hardening
+- whitelist/blacklist filtering
+- multi-layer encryption
+- certificate validation
+
+## نکات مهم
+
+- ترتیب گره‌ها بر عملکرد تأثیر دارد
+- balance groups برای HA ضروری است
+- fwmark برای traffic shaping مفید است
+- مدیریت منابع مناسب عملکرد را بهبود می‌دهد
+
+## واژه‌نامه
+
+- **Load Balancing**: تعادل بار
+- **High Availability**: دسترسی بالا
+- **Defense in Depth**: دفاع عمقی
+- **Zero-Copy**: بدون کپی
+- **Protocol Bridging**: پل پروتکل
+- **Traffic Shaping**: شکل‌دهی ترافیک
