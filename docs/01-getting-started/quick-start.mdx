@@ -1,0 +1,378 @@
+---
+sidebar_position: 2
+---
+
+# شروع سریع
+
+اولین پراکسی خود را در کمتر از 5 دقیقه راه‌اندازی کنید! 🚀
+
+## مراحل سریع ⚡
+
+### گام 1: نصب (1 دقیقه)
+```bash
+# دانلود و نصب WaterWall
+wget https://github.com/radkesvat/WaterWall/releases/latest/download/waterwall-linux-amd64.tar.gz
+tar -xzf waterwall-linux-amd64.tar.gz
+sudo cp waterwall /usr/local/bin/
+sudo chmod +x /usr/local/bin/waterwall
+```
+
+### گام 2: ایجاد پوشه کاری (30 ثانیه)
+```bash
+# ایجاد پوشه کاری
+mkdir ~/my-waterwall && cd ~/my-waterwall
+mkdir configs logs
+```
+
+### گام 3: ایجاد پیکربندی (2 دقیقه)
+
+#### فایل core.json
+```bash
+cat > core.json << 'EOF'
+{
+  "log": {
+    "path": "logs/",
+    "core": {
+      "loglevel": "INFO",
+      "file": "core.log",
+      "console": true
+    }
+  },
+  "misc": {
+    "workers": 0,
+    "ram-profile": "client"
+  },
+  "configs": ["configs/simple-proxy.json"]
+}
+EOF
+```
+
+#### فایل configs/simple-proxy.json
+```bash
+cat > configs/simple-proxy.json << 'EOF'
+{
+  "name": "simple_http_proxy",
+  "author": "من",
+  "config-version": 1,
+  "nodes": [
+    {
+      "name": "http_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8080
+      },
+      "next": "http_connector"
+    },
+    {
+      "name": "http_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "httpforever.com",
+        "port": 80
+      }
+    }
+  ]
+}
+EOF
+```
+
+### گام 4: اجرا و تست (1 دقیقه)
+```bash
+# اجرای WaterWall
+waterwall core.json
+```
+
+در ترمینال جدید:
+```bash
+# تست پراکسی
+curl -x localhost:8080 http://httpforever.com
+```
+
+✅ **تبریک!** اگر "Hello HTTP!" را دیدید، پراکسی شما کار می‌کند!
+
+## نمونه‌های آماده 📦
+
+### پراکسی HTTPS
+```json
+{
+  "name": "https_proxy",
+  "nodes": [
+    {
+      "name": "https_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8443
+      },
+      "next": "https_connector"
+    },
+    {
+      "name": "https_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "httpforever.com",
+        "port": 443
+      }
+    }
+  ]
+}
+```
+
+### Load Balancer ساده
+```json
+{
+  "name": "simple_load_balancer",
+  "nodes": [
+    {
+      "name": "main_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 80,
+        "balance-group": "web_servers"
+      },
+      "next": "server_1"
+    },
+    {
+      "name": "backup_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8080,
+        "balance-group": "web_servers"
+      },
+      "next": "server_2"
+    },
+    {
+      "name": "server_1",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "192.168.1.10",
+        "port": 80
+      }
+    },
+    {
+      "name": "server_2",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "192.168.1.11",
+        "port": 80
+      }
+    }
+  ]
+}
+```
+
+## تست‌های سریع 🧪
+
+### بررسی اتصال
+```bash
+# تست اتصال به پراکسی
+nc -zv localhost 8080
+
+# تست با curl
+curl -v -x localhost:8080 http://httpforever.com
+
+# تست سرعت
+time curl -x localhost:8080 http://httpforever.com
+```
+
+### نظارت بر عملکرد
+```bash
+# مشاهده logs
+tail -f logs/core.log
+
+# بررسی استفاده منابع
+top -p $(pgrep waterwall)
+
+# اتصالات فعال
+netstat -tuln | grep waterwall
+```
+
+## مشکلات رایج و حل سریع 🔧
+
+### مشکل: پورت 8080 در حال استفاده
+```bash
+# پیدا کردن process
+sudo lsof -i :8080
+
+# استفاده از پورت دیگر
+sed -i 's/8080/9090/g' configs/simple-proxy.json
+```
+
+### مشکل: Permission Denied
+```bash
+# تغییر پورت به بالای 1024
+sed -i 's/80/8080/g' configs/simple-proxy.json
+
+# یا اجرا با sudo
+sudo waterwall core.json
+```
+
+### مشکل: اتصال برقرار نمی‌شود
+```bash
+# بررسی فایروال
+sudo ufw status
+
+# اجازه دادن به پورت
+sudo ufw allow 8080
+```
+
+## اسکریپت نصب سریع 📜
+
+فایل `quick-install.sh` ایجاد کنید:
+
+```bash
+cat > quick-install.sh << 'EOF'
+#!/bin/bash
+
+echo "🚀 نصب سریع WaterWall..."
+
+# نصب WaterWall
+wget -q https://github.com/radkesvat/WaterWall/releases/latest/download/waterwall-linux-amd64.tar.gz
+tar -xzf waterwall-linux-amd64.tar.gz
+sudo cp waterwall /usr/local/bin/
+sudo chmod +x /usr/local/bin/waterwall
+rm waterwall-linux-amd64.tar.gz waterwall
+
+# ایجاد محیط کار
+mkdir -p ~/waterwall-quick/{configs,logs}
+cd ~/waterwall-quick
+
+# ایجاد core.json
+cat > core.json << 'EOJ'
+{
+  "log": {
+    "path": "logs/",
+    "core": {"loglevel": "INFO", "console": true}
+  },
+  "misc": {"workers": 0, "ram-profile": "client"},
+  "configs": ["configs/proxy.json"]
+}
+EOJ
+
+# ایجاد پراکسی ساده
+cat > configs/proxy.json << 'EOJ'
+{
+  "name": "quick_proxy",
+  "nodes": [
+    {
+      "name": "listener",
+      "type": "TcpListener",
+      "settings": {"address": "0.0.0.0", "port": 8080},
+      "next": "connector"
+    },
+    {
+      "name": "connector",
+      "type": "TcpConnector",
+      "settings": {"address": "httpforever.com", "port": 80}
+    }
+  ]
+}
+EOJ
+
+echo "✅ نصب کامل شد!"
+echo "📁 فایل‌ها در: ~/waterwall-quick"
+echo "🚀 اجرا: cd ~/waterwall-quick && waterwall core.json"
+echo "🧪 تست: curl -x localhost:8080 http://httpforever.com"
+EOF
+
+chmod +x quick-install.sh
+```
+
+### اجرای اسکریپت
+```bash
+./quick-install.sh
+cd ~/waterwall-quick
+waterwall core.json
+```
+
+## تنظیمات سریع 🎛️
+
+### افزایش عملکرد
+```json
+{
+  "misc": {
+    "workers": 4,
+    "ram-profile": "server"
+  }
+}
+```
+
+### فعال‌سازی debugging
+```json
+{
+  "log": {
+    "core": {"loglevel": "DEBUG", "console": true},
+    "network": {"loglevel": "DEBUG", "console": true}
+  }
+}
+```
+
+### تنظیمات production
+```json
+{
+  "log": {
+    "core": {"loglevel": "WARN", "console": false, "file": "core.log"},
+    "network": {"loglevel": "ERROR", "file": "network.log"}
+  },
+  "misc": {
+    "workers": 0,
+    "ram-profile": "server"
+  }
+}
+```
+
+## اجرا در Background 🔄
+
+### با nohup
+```bash
+nohup waterwall core.json > output.log 2>&1 &
+```
+
+### با systemd
+```bash
+# ایجاد service file
+sudo tee /etc/systemd/system/waterwall.service > /dev/null << EOF
+[Unit]
+Description=WaterWall Service
+After=network.target
+
+[Service]
+Type=simple
+User=$USER
+WorkingDirectory=$HOME/waterwall-quick
+ExecStart=/usr/local/bin/waterwall core.json
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# فعال‌سازی سرویس
+sudo systemctl daemon-reload
+sudo systemctl enable waterwall
+sudo systemctl start waterwall
+```
+
+## چک‌لیست موفقیت ✅
+
+- [ ] WaterWall نصب شده (`waterwall --version`)
+- [ ] فایل‌های config ایجاد شده
+- [ ] پراکسی اجرا می‌شود
+- [ ] تست curl موفق است
+- [ ] Logs خطایی ندارند
+
+## مراحل بعدی 🎯
+
+حالا که پراکسی ساده‌تان کار می‌کند:
+
+1. **[مفاهیم پایه](basic-concepts)** - یاد بگیرید WaterWall چگونه کار می‌کند
+2. **[تنظیمات core](core-configuration)** - core.json را شخصی‌سازی کنید
+3. **[پیکربندی پیشرفته](tunnel-configuration)** - تونل‌های پیچیده بسازید
+4. **[آموزش‌های عملی](../02-tutorials/)** - تونل‌های واقعی راه‌اندازی کنید
+
+**آفرین! شما اولین قدم را برداشتید** 🎉
+
+*نکته: اگر مشکلی داشتید، [عیب‌یابی](installation#عیب-یابی-مشکلات-رایج-🔍) را مطالعه کنید.*

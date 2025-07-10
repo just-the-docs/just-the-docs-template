@@ -1,0 +1,415 @@
+# Simple Configuration Examples
+
+نمونه‌های ساده پیکربندی WaterWall برای شروع سریع.
+
+## 1. Port Forwarding ساده
+
+### HTTP Port Forward
+```json
+{
+  "name": "http_port_forward",
+  "author": "WaterWall User",
+  "config-version": 1,
+  "core-minimum-version": 1,
+  "nodes": [
+    {
+      "name": "http_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8080
+      },
+      "next": "http_connector"
+    },
+    {
+      "name": "http_connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "httpforever.com",
+        "port": 80
+      }
+    }
+  ]
+}
+```
+
+**استفاده:**
+```bash
+curl -x localhost:8080 http://httpforever.com
+```
+
+### Local Service Proxy
+```json
+{
+  "name": "local_service_proxy",
+  "nodes": [
+    {
+      "name": "external_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 3000
+      },
+      "next": "local_service"
+    },
+    {
+      "name": "local_service",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "127.0.0.1",
+        "port": 8080
+      }
+    }
+  ]
+}
+```
+
+## 2. UDP Services
+
+### DNS Proxy
+```json
+{
+  "name": "dns_proxy",
+  "nodes": [
+    {
+      "name": "dns_listener",
+      "type": "UdpStatelessSocket",
+      "settings": {
+        "listen-address": "0.0.0.0",
+        "listen-port": 5353
+      }
+    }
+  ]
+}
+```
+
+### Game Server Proxy
+```json
+{
+  "name": "game_server_proxy",
+  "nodes": [
+    {
+      "name": "game_udp",
+      "type": "UdpStatelessSocket",
+      "settings": {
+        "listen-address": "0.0.0.0",
+        "listen-port": 27015
+      }
+    },
+    {
+      "name": "game_tcp",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 27015
+      },
+      "next": "game_backend"
+    },
+    {
+      "name": "game_backend",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "game.server.local",
+        "port": 27015
+      }
+    }
+  ]
+}
+```
+
+## 3. Basic TLS
+
+### TLS Termination
+```json
+{
+  "name": "tls_termination",
+  "nodes": [
+    {
+      "name": "https_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 443
+      },
+      "next": "tls_handler"
+    },
+    {
+      "name": "tls_handler",
+      "type": "OpenSSLServer",
+      "settings": {
+        "cert-file": "/etc/ssl/certs/server.crt",
+        "key-file": "/etc/ssl/private/server.key"
+      },
+      "next": "backend"
+    },
+    {
+      "name": "backend",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "127.0.0.1",
+        "port": 8080
+      }
+    }
+  ]
+}
+```
+
+### TLS Client
+```json
+{
+  "name": "tls_client",
+  "nodes": [
+    {
+      "name": "http_listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8080
+      },
+      "next": "tls_client"
+    },
+    {
+      "name": "tls_client",
+      "type": "OpenSSLClient",
+      "settings": {
+        "sni": "example.com",
+        "verify-cert": true
+      },
+      "next": "https_server"
+    },
+    {
+      "name": "https_server",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "example.com",
+        "port": 443
+      }
+    }
+  ]
+}
+```
+
+## 4. Load Balancing ساده
+
+### Round Robin
+```json
+{
+  "name": "simple_load_balancer",
+  "nodes": [
+    {
+      "name": "lb_listener_1",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 80,
+        "balance-group": "web_servers"
+      },
+      "next": "web_server_1"
+    },
+    {
+      "name": "lb_listener_2",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8080,
+        "balance-group": "web_servers"
+      },
+      "next": "web_server_2"
+    },
+    {
+      "name": "web_server_1",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "192.168.1.10",
+        "port": 80
+      }
+    },
+    {
+      "name": "web_server_2",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "192.168.1.11",
+        "port": 80
+      }
+    }
+  ]
+}
+```
+
+## 5. Basic VPN
+
+### Simple TUN Interface
+```json
+{
+  "name": "simple_vpn",
+  "nodes": [
+    {
+      "name": "tun_interface",
+      "type": "TunDevice",
+      "settings": {
+        "device-name": "tun0",
+        "device-ip": "10.0.0.1/24"
+      },
+      "next": "vpn_server"
+    },
+    {
+      "name": "vpn_server",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "vpn.server.com",
+        "port": 443
+      }
+    }
+  ]
+}
+```
+
+## Core Configuration Examples
+
+### Development Setup
+```json
+{
+  "log": {
+    "path": "logs/",
+    "core": {
+      "loglevel": "DEBUG",
+      "file": "core.log",
+      "console": true
+    },
+    "network": {
+      "loglevel": "DEBUG",
+      "file": "network.log",
+      "console": true
+    }
+  },
+  "misc": {
+    "workers": 2,
+    "ram-profile": "client"
+  },
+  "configs": ["simple_proxy.json"]
+}
+```
+
+### Production Setup
+```json
+{
+  "log": {
+    "path": "/var/log/waterwall/",
+    "core": {
+      "loglevel": "INFO",
+      "file": "core.log",
+      "console": false
+    },
+    "network": {
+      "loglevel": "WARN",
+      "file": "network.log",
+      "console": false
+    }
+  },
+  "misc": {
+    "workers": 0,
+    "ram-profile": "server"
+  },
+  "configs": [
+    "load_balancer.json",
+    "tls_proxy.json"
+  ]
+}
+```
+
+## Testing Commands
+
+### HTTP Proxy Test
+```bash
+# Test simple proxy
+curl -x localhost:8080 http://httpforever.com
+
+# Test with headers
+curl -H "Host: example.com" -x localhost:8080 http://httpforever.com
+```
+
+### HTTPS Test
+```bash
+# Test TLS connection
+openssl s_client -connect localhost:443 -servername example.com
+
+# Test with curl
+curl -k https://localhost:443
+```
+
+### Performance Test
+```bash
+# Simple benchmark
+ab -n 1000 -c 10 http://localhost:8080/
+
+# Load test
+wrk -t12 -c400 -d30s http://localhost:8080/
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Port Already in Use
+```bash
+# Check what's using the port
+netstat -tuln | grep :8080
+lsof -i :8080
+
+# Kill process
+sudo kill -9 <PID>
+```
+
+#### Permission Denied
+```bash
+# Run with sudo for ports < 1024
+sudo waterwall core.json
+
+# Or use higher ports (>= 1024)
+```
+
+#### Connection Refused
+```bash
+# Check if target server is accessible
+telnet target.server.com 80
+nc -zv target.server.com 80
+```
+
+## Best Practices
+
+### Configuration
+1. **Start Simple**: شروع با پیکربندی‌های ساده
+2. **Test Incrementally**: تست مرحله‌ای
+3. **Use Descriptive Names**: نام‌های توصیفی برای گره‌ها
+4. **Enable Logging**: فعال‌سازی logging مناسب
+
+### Security
+1. **Limit Access**: محدود کردن دسترسی با whitelist
+2. **Use TLS**: استفاده از TLS برای امنیت
+3. **Regular Updates**: به‌روزرسانی منظم
+4. **Monitor Logs**: نظارت بر logs
+
+### Performance
+1. **Tune Workers**: تنظیم تعداد workers
+2. **Optimize RAM**: انتخاب ram-profile مناسب
+3. **Use nodelay**: فعال‌سازی TCP nodelay
+4. **Monitor Resources**: نظارت بر منابع سیستم
+
+## مراحل بعدی
+
+بعد از تسلط بر این نمونه‌های ساده:
+
+1. **Medium Examples**: [پیکربندی‌های متوسط](configuration-examples#متوسط-medium)
+2. **Advanced Patterns**: [الگوهای پیشرفته](advanced-patterns)
+3. **Node Reference**: [مرجع کامل گره‌ها](../04-reference/)
+4. **Production Deployment**: [راهنمای استقرار](../05-guides/deployment)
+
+## واژه‌نامه
+
+- **Port Forward**: انتقال پورت
+- **TLS Termination**: پایان TLS
+- **Load Balancing**: تعادل بار
+- **Round Robin**: چرخشی
+- **VPN**: شبکه خصوصی مجازی
+- **TUN Interface**: رابط تونل
+- **Benchmark**: سنجش عملکرد

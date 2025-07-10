@@ -1,0 +1,544 @@
+---
+sidebar_position: 4
+---
+
+# تنظیمات اصلی (core.json)
+
+راهنمای کامل تنظیم فایل core.json - مغز WaterWall! 🧠⚙️
+
+## core.json چیست؟ 🤔
+
+فایل `core.json` مثل **تنظیمات سیستم** WaterWall است که مشخص می‌کند:
+- چقدر RAM استفاده کند 💾
+- چند thread اجرا کند 🧵  
+- چه سطحی از log بنویسد 📝
+- کدام تونل‌ها را اجرا کند 🚇
+
+## ساختار کلی 📋
+
+```json
+{
+  "log": {
+    // تنظیمات logging
+  },
+  "misc": {
+    // تنظیمات عمومی
+  },
+  "configs": [
+    // لیست فایل‌های پیکربندی تونل
+  ]
+}
+```
+
+## بخش Log 📝
+
+### تنظیمات پایه
+```json
+{
+  "log": {
+    "path": "logs/",                    // پوشه نگهداری logs
+    "core": {
+      "loglevel": "INFO",               // سطح log: DEBUG, INFO, WARN, ERROR, SILENT
+      "file": "core.log",               // نام فایل log
+      "console": true                   // نمایش در console
+    }
+  }
+}
+```
+
+### Logger های مختلف
+```json
+{
+  "log": {
+    "path": "logs/",
+    "core": {
+      "loglevel": "INFO",
+      "file": "core.log", 
+      "console": true
+    },
+    "network": {
+      "loglevel": "WARN",               // فقط هشدارها و خطاها
+      "file": "network.log",
+      "console": false                  // بدون نمایش در console
+    },
+    "dns": {
+      "loglevel": "ERROR",              // فقط خطاها
+      "file": "dns.log",
+      "console": false
+    }
+  }
+}
+```
+
+### سطوح Log
+
+| سطح | توضیح | کاربرد |
+|-----|-------|--------|
+| `DEBUG` | همه چیز (خیلی پرجزئیات) | 🔍 عیب‌یابی |
+| `INFO` | اطلاعات مهم | 📋 نظارت عادی |
+| `WARN` | هشدارها | ⚠️ مسائل احتمالی |
+| `ERROR` | فقط خطاها | 🚨 مشکلات جدی |
+| `SILENT` | هیچ log نگه ندار | 🔇 حداکثر عملکرد |
+
+### نمونه‌های مختلف
+
+#### Development (توسعه)
+```json
+{
+  "log": {
+    "path": "logs/",
+    "core": {
+      "loglevel": "DEBUG",              // همه جزئیات
+      "file": "core.log",
+      "console": true                   // نمایش در console
+    },
+    "network": {
+      "loglevel": "DEBUG",              // همه اتصالات
+      "file": "network.log", 
+      "console": true
+    }
+  }
+}
+```
+
+#### Production (تولید)
+```json
+{
+  "log": {
+    "path": "/var/log/waterwall/",
+    "core": {
+      "loglevel": "WARN",               // فقط مهم‌ها
+      "file": "core.log",
+      "console": false                  // بدون console spam
+    },
+    "network": {
+      "loglevel": "ERROR",              // فقط خطاهای شبکه
+      "file": "network.log",
+      "console": false
+    }
+  }
+}
+```
+
+#### Silent Mode (حداکثر سرعت)
+```json
+{
+  "log": {
+    "core": {"loglevel": "SILENT"},     // بدون log
+    "network": {"loglevel": "SILENT"},
+    "dns": {"loglevel": "SILENT"}
+  }
+}
+```
+
+## بخش Misc 🔧
+
+### تنظیمات عمومی
+```json
+{
+  "misc": {
+    "workers": 0,                       // تعداد worker threads
+    "ram-profile": "client",            // سطح استفاده RAM
+    "libs-path": "libs/"                // مسیر کتابخانه‌ها
+  }
+}
+```
+
+### Workers (تعداد Thread ها)
+```json
+{
+  "misc": {
+    "workers": 0    // خودکار (توصیه می‌شود)
+    // "workers": 2    // دستی: 2 thread
+    // "workers": 4    // دستی: 4 thread  
+    // "workers": 8    // دستی: 8 thread
+  }
+}
+```
+
+💡 **نکته**: مقدار `0` بهترین حالت است - WaterWall خودکار تشخیص می‌دهد.
+
+### RAM Profiles
+
+| Profile | استفاده RAM | کاربرد |
+|---------|-------------|--------|
+| `minimal` | ~250 KB | 🪶 سرورهای کم منابع |
+| `client` | 2-10 MB | 💻 کلاینت‌ها |
+| `server` | 40+ MB per thread | 🖥️ سرورهای قدرتمند |
+
+#### مثال‌ها:
+```json
+// سرور VPS کوچک
+{
+  "misc": {
+    "workers": 2,
+    "ram-profile": "minimal"
+  }
+}
+
+// لپ‌تاپ شخصی  
+{
+  "misc": {
+    "workers": 0,
+    "ram-profile": "client"
+  }
+}
+
+// سرور قدرتمند
+{
+  "misc": {
+    "workers": 0,                       // خودکار
+    "ram-profile": "server"
+  }
+}
+```
+
+## بخش Configs 📁
+
+### فایل‌های پیکربندی
+```json
+{
+  "configs": [
+    "proxy.json",                       // پراکسی ساده
+    "vpn.json",                         // VPN tunnel
+    "load-balancer.json"                // Load balancer
+  ]
+}
+```
+
+### مسیرهای مختلف
+```json
+{
+  "configs": [
+    "configs/proxy.json",               // پوشه configs
+    "/etc/waterwall/vpn.json",          // مسیر مطلق
+    "../shared/lb.json"                 // مسیر نسبی
+  ]
+}
+```
+
+## نمونه‌های کامل 📦
+
+### 1. ساده‌ترین حالت
+```json
+{
+  "log": {
+    "core": {"loglevel": "INFO", "console": true}
+  },
+  "misc": {
+    "workers": 0,
+    "ram-profile": "client"
+  },
+  "configs": ["proxy.json"]
+}
+```
+
+### 2. تنظیمات توسعه
+```json
+{
+  "log": {
+    "path": "logs/",
+    "core": {
+      "loglevel": "DEBUG",
+      "file": "core.log",
+      "console": true
+    },
+    "network": {
+      "loglevel": "DEBUG", 
+      "file": "network.log",
+      "console": true
+    },
+    "dns": {
+      "loglevel": "INFO",
+      "file": "dns.log",
+      "console": false
+    }
+  },
+  "misc": {
+    "workers": 2,                       // کم تا debug آسان‌تر باشد
+    "ram-profile": "client",
+    "libs-path": "libs/"
+  },
+  "configs": [
+    "test-proxy.json",
+    "debug-tunnel.json"
+  ]
+}
+```
+
+### 3. تنظیمات سرور تولید
+```json
+{
+  "log": {
+    "path": "/var/log/waterwall/",
+    "core": {
+      "loglevel": "WARN",
+      "file": "core.log",
+      "console": false
+    },
+    "network": {
+      "loglevel": "ERROR",
+      "file": "network.log", 
+      "console": false
+    },
+    "dns": {
+      "loglevel": "SILENT"              // DNS logs معمولاً شلوغ هستند
+    }
+  },
+  "misc": {
+    "workers": 0,                       // خودکار - حداکثر عملکرد
+    "ram-profile": "server",
+    "libs-path": "/usr/lib/waterwall/"
+  },
+  "configs": [
+    "/etc/waterwall/main-proxy.json",
+    "/etc/waterwall/backup-tunnel.json",
+    "/etc/waterwall/load-balancer.json"
+  ]
+}
+```
+
+### 4. تنظیمات VPS کوچک
+```json
+{
+  "log": {
+    "path": "logs/",
+    "core": {
+      "loglevel": "ERROR",              // کم log = کم I/O
+      "file": "core.log",
+      "console": false
+    },
+    "network": {
+      "loglevel": "SILENT"              // بدون network logs
+    }
+  },
+  "misc": {
+    "workers": 1,                       // فقط 1 worker
+    "ram-profile": "minimal"            // حداقل RAM
+  },
+  "configs": ["simple-proxy.json"]
+}
+```
+
+## ساخت فایل سریع 🚀
+
+### اسکریپت ساده
+```bash
+# ایجاد core.json پایه
+cat > core.json << 'EOF'
+{
+  "log": {
+    "core": {"loglevel": "INFO", "console": true}
+  },
+  "misc": {
+    "workers": 0,
+    "ram-profile": "client"
+  },
+  "configs": ["proxy.json"]
+}
+EOF
+```
+
+### ابزار کمکی
+```bash
+# تولید core.json بر اساس سیستم
+create_core_json() {
+    local profile="client"
+    local workers=0
+    
+    # تشخیص مناسب RAM profile
+    local ram_mb=$(free -m | awk 'NR==2{print $2}')
+    if [ "$ram_mb" -lt 512 ]; then
+        profile="minimal"
+        workers=1
+    elif [ "$ram_mb" -gt 2048 ]; then
+        profile="server"
+    fi
+    
+    cat > core.json << EOF
+{
+  "log": {
+    "path": "logs/",
+    "core": {"loglevel": "INFO", "file": "core.log", "console": true}
+  },
+  "misc": {
+    "workers": $workers,
+    "ram-profile": "$profile"
+  },
+  "configs": ["proxy.json"]
+}
+EOF
+    
+    echo "✅ core.json ایجاد شد با profile: $profile"
+}
+
+# اجرا
+create_core_json
+```
+
+## نکات بهینه‌سازی ⚡
+
+### 1. RAM کم
+```json
+{
+  "misc": {
+    "workers": 1,                       // کم workers
+    "ram-profile": "minimal"            // کم RAM
+  },
+  "log": {
+    "core": {"loglevel": "ERROR"}       // کم logging
+  }
+}
+```
+
+### 2. CPU کم  
+```json
+{
+  "misc": {
+    "workers": 1,                       // فقط 1 thread
+    "ram-profile": "client"
+  }
+}
+```
+
+### 3. حداکثر سرعت
+```json
+{
+  "misc": {
+    "workers": 0,                       // همه CPU cores
+    "ram-profile": "server"             // حداکثر RAM
+  },
+  "log": {
+    "core": {"loglevel": "SILENT"},     // بدون logging
+    "network": {"loglevel": "SILENT"}
+  }
+}
+```
+
+### 4. حداکثر debugging
+```json
+{
+  "log": {
+    "core": {"loglevel": "DEBUG", "console": true},
+    "network": {"loglevel": "DEBUG", "console": true},
+    "dns": {"loglevel": "DEBUG", "console": true}
+  }
+}
+```
+
+## عیب‌یابی 🔧
+
+### مشکلات رایج
+
+#### ❌ JSON نامعتبر
+```bash
+# بررسی syntax JSON
+python3 -m json.tool core.json
+# یا
+jq . core.json
+```
+
+#### ❌ فایل config پیدا نشد
+```json
+{
+  "configs": ["proxy.json"]            // فایل موجود نیست
+}
+```
+**حل**: 
+```bash
+# بررسی وجود فایل
+ls -la proxy.json
+# یا استفاده از مسیر کامل
+```
+
+#### ❌ دسترسی به پوشه log نیست
+```json
+{
+  "log": {
+    "path": "/var/log/waterwall/"      // ممکن است دسترسی نداشته باشید
+  }
+}
+```
+**حل**:
+```bash
+# ایجاد پوشه
+sudo mkdir -p /var/log/waterwall
+sudo chown $USER:$USER /var/log/waterwall
+```
+
+### تست تنظیمات
+```bash
+# تست اجرا با core.json
+waterwall core.json
+
+# اگر خطا داد، بررسی کنید:
+# 1. Syntax JSON
+python3 -m json.tool core.json
+
+# 2. وجود فایل‌های config  
+ls -la proxy.json
+
+# 3. دسترسی به پوشه‌ها
+ls -la logs/
+```
+
+## نکات امنیتی 🔒
+
+### 1. محدود کردن Log
+```json
+{
+  "log": {
+    "core": {"loglevel": "WARN"},       // کم‌تر log = کم‌تر اطلاعات حساس
+    "network": {"loglevel": "ERROR"}
+  }
+}
+```
+
+### 2. مسیر امن برای Logs
+```json
+{
+  "log": {
+    "path": "/var/log/waterwall/",     // جای امن
+    "core": {"file": "core.log"}       // نام ساده
+  }
+}
+```
+
+### 3. محدود کردن منابع
+```json
+{
+  "misc": {
+    "workers": 4,                      // حداکثر مشخص
+    "ram-profile": "client"            // محدود RAM
+  }
+}
+```
+
+## خلاصه 📋
+
+### چک‌لیست core.json
+- [ ] Syntax JSON معتبر است
+- [ ] Log level مناسب انتخاب شده  
+- [ ] RAM profile بر اساس سیستم تنظیم شده
+- [ ] Workers مناسب تعداد CPU
+- [ ] فایل‌های config موجود هستند
+- [ ] دسترسی به پوشه‌ها وجود دارد
+
+### قانون طلایی
+```
+Development  = DEBUG logs + console
+Production   = ERROR logs + file only  
+Performance  = SILENT logs + server profile
+```
+
+## مراحل بعدی 🎯
+
+حالا که core.json را تنظیم کردید:
+
+1. **[پیکربندی تونل](tunnel-configuration)** - تونل‌های خود را بسازید
+2. **[آموزش‌های عملی](../02-tutorials/)** - تونل‌های واقعی راه‌اندازی کنید  
+3. **[بهینه‌سازی](../05-guides/performance)** - عملکرد را افزایش دهید
+
+**عالی! حالا WaterWall دقیقاً آنطور که می‌خواهید کار می‌کند** ⚙️✨
+
+*نکته: همیشه یک نسخه backup از core.json نگه دارید!* 💾

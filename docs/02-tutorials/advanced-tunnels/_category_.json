@@ -1,0 +1,8 @@
+{
+  "label": "Advanced Tunnels",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "تونل‌های پیشرفته - Reality، HTTP/2، Load Balancing و سایر تونل‌های پیچیده"
+  }
+}

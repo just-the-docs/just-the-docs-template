@@ -1,0 +1,270 @@
+---
+sidebar_position: 1
+---
+
+# نصب WaterWall
+
+راهنمای گام به گام نصب WaterWall بر روی سرور Linux شما. 🚀
+
+## پیش‌نیازها
+
+قبل از شروع، مطمئن شوید که سیستم شما شامل موارد زیر است:
+
+### سیستم‌عامل
+- **Linux** (Ubuntu 18.04+, CentOS 7+, Debian 9+)
+- **معماری**: x86_64 (64-bit)
+
+### دسترسی‌ها
+- **دسترسی root** یا sudo
+- **اتصال اینترنت** برای دانلود
+- **پورت‌های آزاد** (443, 80 یا پورت‌های دلخواه)
+
+### بررسی سیستم
+```bash
+# بررسی نسخه Linux
+cat /etc/os-release
+
+# بررسی معماری
+uname -m
+
+# بررسی فضای خالی (حداقل 100MB)
+df -h
+```
+
+## روش 1: نصب سریع (توصیه می‌شود) ⚡
+
+### دانلود آخرین نسخه
+```bash
+# رفتن به پوشه home
+cd ~
+
+# دانلود آخرین نسخه WaterWall
+wget https://github.com/radkesvat/WaterWall/releases/latest/download/waterwall-linux-amd64.tar.gz
+```
+
+### استخراج و نصب
+```bash
+# نصب unzip و tar (اگر نصب نیستند)
+sudo apt update && sudo apt install -y wget tar
+
+# استخراج فایل
+tar -xzf waterwall-linux-amd64.tar.gz
+
+# کپی به پوشه system
+sudo cp waterwall /usr/local/bin/
+
+# تنظیم مجوزها
+sudo chmod +x /usr/local/bin/waterwall
+
+# بررسی نصب
+waterwall --version
+```
+
+✅ **تبریک!** WaterWall با موفقیت نصب شد.
+
+## روش 2: نصب دستی 🔧
+
+اگر روش اول کار نکرد، این مراحل را دنبال کنید:
+
+### 1. ایجاد پوشه‌های مورد نیاز
+```bash
+# ایجاد پوشه‌ها
+sudo mkdir -p /opt/waterwall
+sudo mkdir -p /etc/waterwall
+sudo mkdir -p /var/log/waterwall
+
+# تنظیم مالکیت
+sudo chown $USER:$USER /opt/waterwall
+sudo chown $USER:$USER /etc/waterwall
+```
+
+### 2. دانلود و نصب
+```bash
+# رفتن به پوشه waterwall
+cd /opt/waterwall
+
+# دانلود فایل
+wget https://github.com/radkesvat/WaterWall/releases/latest/download/waterwall-linux-amd64.tar.gz
+
+# استخراج
+tar -xzf waterwall-linux-amd64.tar.gz
+
+# تنظیم مجوز اجرا
+chmod +x waterwall
+
+# ایجاد symbolic link
+sudo ln -sf /opt/waterwall/waterwall /usr/local/bin/waterwall
+```
+
+### 3. تست نصب
+```bash
+# بررسی نصب
+which waterwall
+waterwall --help
+```
+
+## تنظیم محیط کار 📁
+
+### ایجاد ساختار پوشه‌ها
+```bash
+# ایجاد پوشه کاری
+mkdir -p ~/waterwall-configs
+cd ~/waterwall-configs
+
+# ایجاد پوشه‌های فرعی
+mkdir -p configs logs ssl
+```
+
+### ساختار پیشنهادی
+```
+~/waterwall-configs/
+├── core.json          # تنظیمات اصلی
+├── configs/           # فایل‌های پیکربندی
+│   ├── proxy.json
+│   └── vpn.json
+├── logs/              # فایل‌های لاگ
+└── ssl/               # گواهی‌های SSL
+    ├── cert.pem
+    └── key.pem
+```
+
+## اولین اجرا 🎯
+
+### ایجاد فایل تست
+```bash
+cd ~/waterwall-configs
+
+# ایجاد core.json ساده
+cat > core.json << 'EOF'
+{
+  "log": {
+    "path": "logs/",
+    "core": {
+      "loglevel": "INFO",
+      "file": "core.log",
+      "console": true
+    }
+  },
+  "misc": {
+    "workers": 0,
+    "ram-profile": "client"
+  },
+  "configs": ["configs/test.json"]
+}
+EOF
+
+# ایجاد پیکربندی تست
+mkdir -p configs
+cat > configs/test.json << 'EOF'
+{
+  "name": "test_proxy",
+  "author": "شما",
+  "config-version": 1,
+  "nodes": [
+    {
+      "name": "listener",
+      "type": "TcpListener",
+      "settings": {
+        "address": "0.0.0.0",
+        "port": 8080
+      },
+      "next": "connector"
+    },
+    {
+      "name": "connector",
+      "type": "TcpConnector",
+      "settings": {
+        "address": "httpforever.com",
+        "port": 80
+      }
+    }
+  ]
+}
+EOF
+```
+
+### اجرای تست
+```bash
+# اجرای WaterWall
+waterwall core.json
+
+# در ترمینال جدید، تست کنید:
+curl -x localhost:8080 http://httpforever.com
+```
+
+اگر پیام "Hello HTTP!" را دیدید، نصب موفقیت‌آمیز بوده است! 🎉
+
+## عیب‌یابی مشکلات رایج 🔍
+
+### مشکل: دسترسی رد شد (Permission Denied)
+```bash
+# اجرا با sudo
+sudo waterwall core.json
+
+# یا تغییر پورت به بالای 1024
+```
+
+### مشکل: پورت در حال استفاده
+```bash
+# بررسی پورت‌های در حال استفاده
+netstat -tuln | grep :8080
+
+# تغییر پورت در فایل config
+```
+
+### مشکل: فایل پیدا نشد
+```bash
+# بررسی مسیر فعلی
+pwd
+
+# بررسی وجود فایل‌ها
+ls -la core.json configs/
+```
+
+### مشکل: اتصال به اینترنت
+```bash
+# تست اتصال
+ping google.com
+
+# بررسی DNS
+nslookup httpforever.com
+```
+
+## حذف WaterWall (در صورت نیاز) 🗑️
+
+```bash
+# حذف فایل اجرایی
+sudo rm /usr/local/bin/waterwall
+
+# حذف پوشه‌ها (اختیاری)
+rm -rf /opt/waterwall
+rm -rf ~/waterwall-configs
+```
+
+## مراحل بعدی 📖
+
+حالا که WaterWall نصب شده، آماده‌اید برای:
+
+1. **[یادگیری مفاهیم پایه](basic-concepts)** - درک معماری WaterWall
+2. **[تنظیمات اصلی](core-configuration)** - شخصی‌سازی core.json
+3. **[پیکربندی تونل](tunnel-configuration)** - ساخت اولین تونل واقعی
+4. **[شروع سریع](quick-start)** - راه‌اندازی در 5 دقیقه
+
+## نکات مهم 💡
+
+### امنیت
+- همیشه آخرین نسخه را استفاده کنید
+- فایل‌های پیکربندی را محافظت کنید
+- از پورت‌های امن استفاده کنید
+
+### عملکرد
+- RAM profile مناسب انتخاب کنید
+- تعداد workers را بر اساس CPU تنظیم کنید
+- Logs را به طور منظم بررسی کنید
+
+### پشتیبانی
+- **مستندات**: این راهنما شامل همه چیز است
+- **GitHub**: [Issues و Discussions](https://github.com/radkesvat/WaterWall)
+- **کامیونیتی**: کمک از کاربران دیگر
+
+**آماده‌اید برای ماجراجویی WaterWall؟** 🚀
