@@ -1,8 +1,12 @@
-title: Just the Docs Template
+title: 3Ddocs
 description: A starter template for a Jeykll site using the Just the Docs theme!
 theme: just-the-docs
 
-url: https://just-the-docs.github.io
+url: https://github.com/harrynow83/3Ddocs
 
 aux_links:
-  Template Repository: https://github.com/just-the-docs/just-the-docs-template
+  Template Repository: https://github.com/harrynow83/3Ddocs
+
+color_scheme: dark
+# otras opciones útiles (opcional)
+# nav_sort: case_insensitive
