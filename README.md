@@ -61,7 +61,8 @@ Note: If you are using a Jekyll version less than 3.5.0, use the `gems` key inst
     description: YOUR DESCRIPTION
     theme: just-the-docs
 
-    url: https://YOUR-USERNAME.github.io/YOUR-SITE-NAME
+    url: https://YOUR-USERNAME.github.io
+    baseurl: YOUR-SITE-NAME # baseurl is used by Jekyll when serving from a subfolder
 
     aux_links: # remove if you don't want this link to appear on your pages
       Template Repository: https://github.com/YOUR-USERNAME/YOUR-SITE-NAME
